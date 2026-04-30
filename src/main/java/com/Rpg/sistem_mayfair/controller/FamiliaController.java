@@ -40,4 +40,34 @@ public class FamiliaController {
     public List<Familia> listarFamilias() {
         return familiaRepository.findAll();
     }
+
+    @GetMapping("/{id}")
+    public Familia buscarPorId(@PathVariable Integer id) {
+        return familiaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Família não encontrada"));
+    }
+
+    @PutMapping("/{id}")
+    public Familia atualizarFamilia(
+            @PathVariable Integer id,
+            @RequestBody FamiliaRequestDTO dto
+    ) {
+
+        Familia familia = familiaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Família não encontrada"));
+
+        familia.setNome(dto.nome());
+        familia.setTitulo(dto.titulo());
+        familia.setDilema(dto.dilema());
+        familia.setPhotoUrl(dto.photoUrl());
+        familia.setMatriarca(dto.matriarca());
+        familia.setPatriarca(dto.patriarca());
+
+        return familiaRepository.save(familia);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletarFamilia(@PathVariable Integer id) {
+        familiaRepository.deleteById(id);
+    }
 }

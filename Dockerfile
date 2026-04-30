@@ -1,6 +1,4 @@
 # --- STAGE 1: build ---
-# Usamos uma imagem Maven estável com JDK 21 para rodar o Maven,
-# mas configuramos o compilador para usar o JDK 25 que baixaremos.
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /workspace
 
@@ -18,7 +16,6 @@ COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 mvn -q -B -DskipTests clean package
 
 # --- STAGE 2: run ---
-# Imagem final leve para rodar o sistema Mayfair
 FROM openjdk:25-ea-jdk-slim
 RUN groupadd -r app && useradd -r -g app app
 USER app

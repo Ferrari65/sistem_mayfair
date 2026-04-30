@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "personagens")
 @Getter
@@ -36,8 +38,8 @@ public class Personagem {
     @JoinColumn(name = "id_familia")
     private Familia familia;
 
-//    @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
-//    private List<HistoricoPrestigio> historicoPrestigio;
+    @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
+    private List<HistoricoPrestigio> historicoPrestigio;
 
     public void alterarPrestigio(int quantidade) {
         int novoPrestigio = this.prestigio + quantidade;
