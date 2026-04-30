@@ -16,10 +16,10 @@ jobs:
       - name: Baixando o codigo
         uses: actions/checkout@v4
 
-      - name: Configurando JDK 21
+      - name: Configurando JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'temurin'
           cache: maven
 
