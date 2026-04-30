@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: sistem_mayfair
+
+  datasource:
+    url: jdbc:postgresql://ep-round-hall-anm8zmf2-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require
+    username: neondb_owner
+    password: npg_v50qyaUthXVd
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  docker:
+    compose:
+      enabled: false
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
