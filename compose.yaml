@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   api:
-    image: ghcr.io/ferrari65/sistem_mayfair:master
+    image: ghcr.io/ferrari65/sistem_mayfair:latest
     ports:
       - "8080:8080"
     environment:
