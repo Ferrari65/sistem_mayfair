@@ -3,6 +3,7 @@ package com.Rpg.sistem_mayfair.controller;
 import com.Rpg.sistem_mayfair.domain.Familia;
 import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.dto.PersonagemDTO;
+import com.Rpg.sistem_mayfair.dto.PersonagemResponseDTO;
 import com.Rpg.sistem_mayfair.repository.FamiliaRepository;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class PersonagemController {
     private final FamiliaRepository familiaRepository;
 
     @PostMapping
-    public Personagem criarPersonagem(@RequestBody PersonagemDTO dto) {
+    public PersonagemResponseDTO criarPersonagem(@RequestBody PersonagemDTO dto) {
 
         Familia familia = familiaRepository.findById(dto.getIdFamilia())
                 .orElseThrow(() -> new RuntimeException("Família não encontrada"));
@@ -35,23 +36,31 @@ public class PersonagemController {
 
         personagem.setFamilia(familia);
 
-        return personagemRepository.save(personagem);
+        Personagem salvo = personagemRepository.save(personagem);
+
+        return new PersonagemResponseDTO(salvo);
     }
 
     @GetMapping
-    public List<Personagem> listarPersonagens() {
-        return personagemRepository.findAll();
+    public List<PersonagemResponseDTO> listarPersonagens() {
+
+        return personagemRepository.findAll()
+                .stream()
+                .map(PersonagemResponseDTO::new)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public Personagem buscarPorId(@PathVariable Long id) {
+    public PersonagemResponseDTO buscarPorId(@PathVariable Long id) {
 
-        return personagemRepository.findById(id)
+        Personagem personagem = personagemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
+
+        return new PersonagemResponseDTO(personagem);
     }
 
     @PutMapping("/{id}")
-    public Personagem atualizarPersonagem(
+    public PersonagemResponseDTO atualizarPersonagem(
             @PathVariable Long id,
             @RequestBody PersonagemDTO dto
     ) {
@@ -71,7 +80,9 @@ public class PersonagemController {
 
         personagem.setFamilia(familia);
 
-        return personagemRepository.save(personagem);
+        Personagem atualizado = personagemRepository.save(personagem);
+
+        return new PersonagemResponseDTO(atualizado);
     }
 
     @DeleteMapping("/{id}")
