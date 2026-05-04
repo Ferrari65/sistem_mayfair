@@ -21,24 +21,26 @@ public class PersonagemController {
 
     @PostMapping
     public PersonagemResponseDTO criarPersonagem(@RequestBody PersonagemDTO dto) {
-
+        // 1. Busca a família primeiro
         Familia familia = familiaRepository.findById(dto.getIdFamilia())
                 .orElseThrow(() -> new RuntimeException("Família não encontrada"));
 
+        // 2. Cria o personagem
         Personagem personagem = new Personagem();
-
         personagem.setNome(dto.getNome());
         personagem.setIdade(dto.getIdade());
         personagem.setTitulo(dto.getTitulo());
-        personagem.setPrestigio(dto.getPrestigio());
+        personagem.setPrestigio(dto.getPrestigio() != null ? dto.getPrestigio() : 20);
         personagem.setDescricao(dto.getDescricao());
         personagem.setFoto(dto.getFoto());
 
+        // 3. Associa a família encontrada
         personagem.setFamilia(familia);
 
-        // O campo id_personagens e createdAt são gerados automaticamente pela Entity
+        // 4. Salva
         Personagem salvo = personagemRepository.save(personagem);
 
+        // 5. IMPORTANTE: Retorna o DTO usando o objeto 'salvo' que já tem o ID e a Família vinculada
         return new PersonagemResponseDTO(salvo);
     }
 
