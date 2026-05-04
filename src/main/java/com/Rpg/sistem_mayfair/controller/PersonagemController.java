@@ -2,10 +2,12 @@ package com.Rpg.sistem_mayfair.controller;
 
 import com.Rpg.sistem_mayfair.domain.Familia;
 import com.Rpg.sistem_mayfair.domain.Personagem;
+import com.Rpg.sistem_mayfair.dto.EventoPrestigioDTO;
 import com.Rpg.sistem_mayfair.dto.PersonagemDTO;
 import com.Rpg.sistem_mayfair.dto.PersonagemResponseDTO;
 import com.Rpg.sistem_mayfair.repository.FamiliaRepository;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
+import com.Rpg.sistem_mayfair.service.PrestigioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +20,7 @@ public class PersonagemController {
 
     private final PersonagemRepository personagemRepository;
     private final FamiliaRepository familiaRepository;
+    private final PrestigioService prestigioService;
 
     // =========================================
     // CRIAR PERSONAGEM
@@ -107,5 +110,28 @@ public class PersonagemController {
     @DeleteMapping("/{id}")
     public void deletarPersonagem(@PathVariable Long id) {
         personagemRepository.deleteById(id);
+    }
+
+    @PostMapping("/{id}/eventos")
+    public PersonagemResponseDTO adicionarEvento(
+            @PathVariable Long id,
+            @RequestBody EventoPrestigioDTO dto
+    ) {
+
+        Personagem atualizado = prestigioService.aplicarEvento(
+                id,
+                dto.getReason(),
+                dto.getDelta()
+        );
+
+        return new PersonagemResponseDTO(atualizado);
+    }
+
+    @PostMapping("/{id}/recalcular-prestigio")
+    public PersonagemResponseDTO recalcular(@PathVariable Long id) {
+
+        Personagem personagem = prestigioService.recalcularPrestigio(id);
+
+        return new PersonagemResponseDTO(personagem);
     }
 }
