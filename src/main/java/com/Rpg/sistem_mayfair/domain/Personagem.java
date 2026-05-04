@@ -1,6 +1,6 @@
 package com.Rpg.sistem_mayfair.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -19,12 +19,14 @@ import java.util.List;
 @AllArgsConstructor
 public class Personagem {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_personagens;
+
     private String nome;
+
     private Integer idade;
+
     private String titulo;
 
     @Min(0)
@@ -34,20 +36,27 @@ public class Personagem {
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
+
     private String foto;
 
     @ManyToOne
     @JoinColumn(name = "id_familia")
-    @JsonManagedReference
+    @JsonBackReference
     private Familia familia;
 
     @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
     private List<HistoricoPrestigio> historicoPrestigio;
 
     public void alterarPrestigio(int quantidade) {
+
         int novoPrestigio = this.prestigio + quantidade;
-        if (novoPrestigio > 50) this.prestigio = 50;
-        else if (novoPrestigio < 0) this.prestigio = 0;
-        else this.prestigio = novoPrestigio;
+
+        if (novoPrestigio > 50) {
+            this.prestigio = 50;
+        } else if (novoPrestigio < 0) {
+            this.prestigio = 0;
+        } else {
+            this.prestigio = novoPrestigio;
+        }
     }
 }
