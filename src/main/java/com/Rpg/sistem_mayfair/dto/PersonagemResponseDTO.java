@@ -1,12 +1,10 @@
 package com.Rpg.sistem_mayfair.dto;
 
 import com.Rpg.sistem_mayfair.domain.Personagem;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public record PersonagemResponseDTO(
-
         Long id,
         String name,
         String family,
@@ -15,29 +13,17 @@ public record PersonagemResponseDTO(
         String description,
         String imageUrl,
         List<Object> events
-
 ) {
-
     public PersonagemResponseDTO(Personagem personagem) {
-
         this(
-
                 personagem.getId_personagens(),
-
                 personagem.getNome(),
-
-                personagem.getFamilia() != null
-                        ? personagem.getFamilia().getNome()
-                        : null,
-
+                // Verifique se na sua classe Familia o método é getNome() ou getSobrenome()
+                personagem.getFamilia() != null ? personagem.getFamilia().getNome() : "Sem Família",
                 personagem.getTitulo(),
-
                 personagem.getPrestigio(),
-
                 personagem.getDescricao(),
-
                 personagem.getFoto(),
-
                 new ArrayList<>()
         );
     }
