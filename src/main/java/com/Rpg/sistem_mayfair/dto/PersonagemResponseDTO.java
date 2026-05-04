@@ -2,6 +2,9 @@ package com.Rpg.sistem_mayfair.dto;
 
 import com.Rpg.sistem_mayfair.domain.Personagem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public record PersonagemResponseDTO(
 
         Long id,
@@ -10,21 +13,32 @@ public record PersonagemResponseDTO(
         String title,
         Integer prestige,
         String description,
-        String imageUrl
+        String imageUrl,
+        List<Object> events
 
 ) {
 
     public PersonagemResponseDTO(Personagem personagem) {
+
         this(
+
                 personagem.getId_personagens(),
+
                 personagem.getNome(),
+
                 personagem.getFamilia() != null
                         ? personagem.getFamilia().getNome()
                         : null,
+
                 personagem.getTitulo(),
+
                 personagem.getPrestigio(),
+
                 personagem.getDescricao(),
-                personagem.getFoto()
+
+                personagem.getFoto(),
+
+                new ArrayList<>()
         );
     }
 }
