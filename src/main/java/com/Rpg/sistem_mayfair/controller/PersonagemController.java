@@ -40,8 +40,13 @@ public class PersonagemController {
         personagem.setIdade(dto.getAge());
         personagem.setTitulo(dto.getTitle());
         personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
-        personagem.setDescricao(dto.getNotes());
-        personagem.setFoto(dto.getPhotoUrl());
+        personagem.setDescricao(dto.getDescription());
+
+        // 🔥 PADRONIZAÇÃO FINAL
+        personagem.setImageUrl(
+                dto.getImageUrl() != null ? dto.getImageUrl().trim() : null
+        );
+
         personagem.setFamilia(familia);
 
         return new PersonagemResponseDTO(
@@ -95,8 +100,13 @@ public class PersonagemController {
         personagem.setIdade(dto.getAge());
         personagem.setTitulo(dto.getTitle());
         personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
-        personagem.setDescricao(dto.getNotes());
-        personagem.setFoto(dto.getPhotoUrl());
+        personagem.setDescricao(dto.getDescription());
+
+        // 🔥 PADRÃO ÚNICO
+        personagem.setImageUrl(
+                dto.getImageUrl() != null ? dto.getImageUrl().trim() : null
+        );
+
         personagem.setFamilia(familia);
 
         return new PersonagemResponseDTO(
@@ -112,6 +122,9 @@ public class PersonagemController {
         personagemRepository.deleteById(id);
     }
 
+    // =========================================
+    // EVENTOS
+    // =========================================
     @PostMapping("/{id}/eventos")
     public PersonagemResponseDTO adicionarEvento(
             @PathVariable Long id,

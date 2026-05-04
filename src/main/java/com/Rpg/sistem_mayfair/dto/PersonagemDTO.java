@@ -11,8 +11,8 @@ public class PersonagemDTO {
     private Integer age;
     private String title;
     private Integer prestige;
-    private String notes;
-    private String photoUrl;
+    private String description;
+    private String imageUrl;
 
     private String family;
 }
