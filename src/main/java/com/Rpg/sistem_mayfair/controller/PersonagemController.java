@@ -36,6 +36,7 @@ public class PersonagemController {
 
         personagem.setFamilia(familia);
 
+        // O campo id_personagens e createdAt são gerados automaticamente pela Entity
         Personagem salvo = personagemRepository.save(personagem);
 
         return new PersonagemResponseDTO(salvo);

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -44,8 +45,16 @@ public class Personagem {
     @JsonBackReference
     private Familia familia;
 
+    @Column(nullable = true, updatable = false)
+    private LocalDateTime createdAt;
+
     @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
     private List<HistoricoPrestigio> historicoPrestigio;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     public void alterarPrestigio(int quantidade) {
 
