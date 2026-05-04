@@ -38,6 +38,7 @@ public class Personagem {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
+    // 🔥 continua sendo "foto" no banco
     private String foto;
 
     @ManyToOne
@@ -57,7 +58,6 @@ public class Personagem {
     }
 
     public void alterarPrestigio(int quantidade) {
-
         int novoPrestigio = this.prestigio + quantidade;
 
         if (novoPrestigio > 50) {
