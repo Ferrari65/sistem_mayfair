@@ -1,5 +1,6 @@
 package com.Rpg.sistem_mayfair.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class Familia {
     private String matriarca;
     private String patriarca;
 
+    @JsonBackReference
     @OneToMany(mappedBy = "familia")
     private List<Personagem> personagens;
 }

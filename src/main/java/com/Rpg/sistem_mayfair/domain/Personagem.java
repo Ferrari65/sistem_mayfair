@@ -1,5 +1,6 @@
 package com.Rpg.sistem_mayfair.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -36,6 +37,7 @@ public class Personagem {
 
     @ManyToOne
     @JoinColumn(name = "id_familia")
+    @JsonManagedReference
     private Familia familia;
 
     @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
