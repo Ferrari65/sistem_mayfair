@@ -1,8 +1,10 @@
 package com.Rpg.sistem_mayfair.controller;
 
 import com.Rpg.sistem_mayfair.domain.Familia;
+import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.dto.FamiliaRequestDTO;
 import com.Rpg.sistem_mayfair.repository.FamiliaRepository;
+import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,12 +21,15 @@ import java.util.List;
 public class FamiliaController {
 
     private final FamiliaRepository familiaRepository;
+    private final PersonagemRepository personagemRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Cadastra uma nova família")
     public Familia criarFamilia(@RequestBody @Valid FamiliaRequestDTO data) {
+
         Familia familia = new Familia();
+
         familia.setNome(data.nome());
         familia.setTitulo(data.titulo());
         familia.setDilema(data.dilema());
@@ -42,14 +47,15 @@ public class FamiliaController {
     }
 
     @GetMapping("/{id}")
-    public Familia buscarPorId(@PathVariable Integer id) {
+    public Familia buscarPorId(@PathVariable Long id) {
+
         return familiaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Família não encontrada"));
     }
 
     @PutMapping("/{id}")
     public Familia atualizarFamilia(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestBody FamiliaRequestDTO dto
     ) {
 
@@ -67,7 +73,17 @@ public class FamiliaController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletarFamilia(@PathVariable Integer id) {
-        familiaRepository.deleteById(id);
+    public void deletarFamilia(@PathVariable Long id) {
+
+        Familia familia = familiaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Família não encontrada"));
+
+        for (Personagem personagem : familia.getPersonagens()) {
+            personagem.setFamilia(null);
+        }
+
+        personagemRepository.saveAll(familia.getPersonagens());
+
+        familiaRepository.delete(familia);
     }
 }

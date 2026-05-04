@@ -11,5 +11,5 @@ public class PersonagemDTO {
     private Integer prestigio;
     private String descricao;
     private String foto;
-    private Integer idFamilia;
+    private Long idFamilia;
 }

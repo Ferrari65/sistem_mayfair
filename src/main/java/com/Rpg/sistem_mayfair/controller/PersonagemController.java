@@ -44,14 +44,15 @@ public class PersonagemController {
     }
 
     @GetMapping("/{id}")
-    public Personagem buscarPorId(@PathVariable Integer id) {
+    public Personagem buscarPorId(@PathVariable Long id) {
+
         return personagemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
     }
 
     @PutMapping("/{id}")
     public Personagem atualizarPersonagem(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestBody PersonagemDTO dto
     ) {
 
@@ -74,7 +75,8 @@ public class PersonagemController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletarPersonagem(@PathVariable Integer id) {
+    public void deletarPersonagem(@PathVariable Long id) {
+
         personagemRepository.deleteById(id);
     }
 }

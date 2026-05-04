@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class HistoricoPrestigioDTO {
 
-    private Integer idPersonagem;
+    private Long idPersonagem;
     private String descricao;
     private Integer pontos;
 }
