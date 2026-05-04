@@ -19,40 +19,47 @@ public class PersonagemController {
     private final PersonagemRepository personagemRepository;
     private final FamiliaRepository familiaRepository;
 
+    // =========================================
+    // CRIAR PERSONAGEM
+    // =========================================
     @PostMapping
     public PersonagemResponseDTO criarPersonagem(@RequestBody PersonagemDTO dto) {
-        // 1. Busca a família primeiro
-        Familia familia = familiaRepository.findById(dto.getIdFamilia())
-                .orElseThrow(() -> new RuntimeException("Família não encontrada"));
 
-        // 2. Cria o personagem
+        Familia familia = null;
+
+        if (dto.getFamily() != null && !dto.getFamily().isBlank()) {
+            familia = familiaRepository.findByNome(dto.getFamily())
+                    .orElse(null);
+        }
+
         Personagem personagem = new Personagem();
-        personagem.setNome(dto.getNome());
-        personagem.setIdade(dto.getIdade());
-        personagem.setTitulo(dto.getTitulo());
-        personagem.setPrestigio(dto.getPrestigio() != null ? dto.getPrestigio() : 20);
-        personagem.setDescricao(dto.getDescricao());
-        personagem.setFoto(dto.getFoto());
-
-        // 3. Associa a família encontrada
+        personagem.setNome(dto.getName());
+        personagem.setIdade(dto.getAge());
+        personagem.setTitulo(dto.getTitle());
+        personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
+        personagem.setDescricao(dto.getNotes());
+        personagem.setFoto(dto.getPhotoUrl());
         personagem.setFamilia(familia);
 
-        // 4. Salva
-        Personagem salvo = personagemRepository.save(personagem);
-
-        // 5. IMPORTANTE: Retorna o DTO usando o objeto 'salvo' que já tem o ID e a Família vinculada
-        return new PersonagemResponseDTO(salvo);
+        return new PersonagemResponseDTO(
+                personagemRepository.save(personagem)
+        );
     }
 
+    // =========================================
+    // LISTAR
+    // =========================================
     @GetMapping
     public List<PersonagemResponseDTO> listarPersonagens() {
-
         return personagemRepository.findAll()
                 .stream()
                 .map(PersonagemResponseDTO::new)
                 .toList();
     }
 
+    // =========================================
+    // BUSCAR POR ID
+    // =========================================
     @GetMapping("/{id}")
     public PersonagemResponseDTO buscarPorId(@PathVariable Long id) {
 
@@ -62,6 +69,9 @@ public class PersonagemController {
         return new PersonagemResponseDTO(personagem);
     }
 
+    // =========================================
+    // ATUALIZAR
+    // =========================================
     @PutMapping("/{id}")
     public PersonagemResponseDTO atualizarPersonagem(
             @PathVariable Long id,
@@ -71,26 +81,31 @@ public class PersonagemController {
         Personagem personagem = personagemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
 
-        Familia familia = familiaRepository.findById(dto.getIdFamilia())
-                .orElseThrow(() -> new RuntimeException("Família não encontrada"));
+        Familia familia = null;
 
-        personagem.setNome(dto.getNome());
-        personagem.setIdade(dto.getIdade());
-        personagem.setTitulo(dto.getTitulo());
-        personagem.setPrestigio(dto.getPrestigio());
-        personagem.setDescricao(dto.getDescricao());
-        personagem.setFoto(dto.getFoto());
+        if (dto.getFamily() != null && !dto.getFamily().isBlank()) {
+            familia = familiaRepository.findByNome(dto.getFamily())
+                    .orElse(null);
+        }
 
+        personagem.setNome(dto.getName());
+        personagem.setIdade(dto.getAge());
+        personagem.setTitulo(dto.getTitle());
+        personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
+        personagem.setDescricao(dto.getNotes());
+        personagem.setFoto(dto.getPhotoUrl());
         personagem.setFamilia(familia);
 
-        Personagem atualizado = personagemRepository.save(personagem);
-
-        return new PersonagemResponseDTO(atualizado);
+        return new PersonagemResponseDTO(
+                personagemRepository.save(personagem)
+        );
     }
 
+    // =========================================
+    // DELETAR
+    // =========================================
     @DeleteMapping("/{id}")
     public void deletarPersonagem(@PathVariable Long id) {
-
         personagemRepository.deleteById(id);
     }
 }

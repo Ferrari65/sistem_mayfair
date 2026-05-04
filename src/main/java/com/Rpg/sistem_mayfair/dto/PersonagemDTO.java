@@ -1,19 +1,23 @@
 package com.Rpg.sistem_mayfair.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor 
+@Getter
+@Setter
 public class PersonagemDTO {
 
-    private String nome;
-    private Integer idade;
-    private String titulo;
-    private Integer prestigio;
-    private String descricao;
-    private String foto;
-    private Long idFamilia;
+    private String name;
+
+    private Integer age;
+
+    private String title;
+
+    private Integer prestige;
+
+    private String notes;
+
+    private String photoUrl;
+
+    private String family;
 }
