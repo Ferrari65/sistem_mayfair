@@ -23,7 +23,7 @@ public class PersonagemController {
     private final PrestigioService prestigioService;
 
     // =========================================
-    // CRIAR PERSONAGEM
+    // CRIAR PERSONAGEM (OK)
     // =========================================
     @PostMapping
     public PersonagemResponseDTO criarPersonagem(@RequestBody PersonagemDTO dto) {
@@ -42,10 +42,10 @@ public class PersonagemController {
         personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
         personagem.setDescricao(dto.getDescription());
 
-        // 🔥 PADRONIZAÇÃO FINAL
-        personagem.setImageUrl(
-                dto.getImageUrl() != null ? dto.getImageUrl().trim() : null
-        );
+        // 🔥 BLINDADO (não salva null sem necessidade)
+        if (dto.getImageUrl() != null && !dto.getImageUrl().isBlank()) {
+            personagem.setImageUrl(dto.getImageUrl().trim());
+        }
 
         personagem.setFamilia(familia);
 
@@ -78,7 +78,7 @@ public class PersonagemController {
     }
 
     // =========================================
-    // ATUALIZAR
+    // ATUALIZAR (🔥 BLINDADO CONTRA PERDA DE DADOS)
     // =========================================
     @PutMapping("/{id}")
     public PersonagemResponseDTO atualizarPersonagem(
@@ -96,18 +96,35 @@ public class PersonagemController {
                     .orElse(null);
         }
 
-        personagem.setNome(dto.getName());
-        personagem.setIdade(dto.getAge());
-        personagem.setTitulo(dto.getTitle());
-        personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
-        personagem.setDescricao(dto.getDescription());
+        // 🔥 UPDATE SEGURO (NUNCA SOBRESCREVE COM NULL)
 
-        // 🔥 PADRÃO ÚNICO
-        personagem.setImageUrl(
-                dto.getImageUrl() != null ? dto.getImageUrl().trim() : null
-        );
+        if (dto.getName() != null) {
+            personagem.setNome(dto.getName());
+        }
 
-        personagem.setFamilia(familia);
+        if (dto.getAge() != null) {
+            personagem.setIdade(dto.getAge());
+        }
+
+        if (dto.getTitle() != null) {
+            personagem.setTitulo(dto.getTitle());
+        }
+
+        if (dto.getPrestige() != null) {
+            personagem.setPrestigio(dto.getPrestige());
+        }
+
+        if (dto.getDescription() != null) {
+            personagem.setDescricao(dto.getDescription());
+        }
+
+        if (dto.getImageUrl() != null && !dto.getImageUrl().isBlank()) {
+            personagem.setImageUrl(dto.getImageUrl().trim());
+        }
+
+        if (familia != null) {
+            personagem.setFamilia(familia);
+        }
 
         return new PersonagemResponseDTO(
                 personagemRepository.save(personagem)
