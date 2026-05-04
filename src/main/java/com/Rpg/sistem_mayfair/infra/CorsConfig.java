@@ -17,10 +17,13 @@ public class CorsConfig {
 
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "http://localhost:8080"
+                                "http://localhost:8080",
+                                "http://localhost:5173",
+                                "https://society-s-stage.vercel.app"
                         )
-                        .allowedMethods("*")
-                        .allowedHeaders("*");
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
