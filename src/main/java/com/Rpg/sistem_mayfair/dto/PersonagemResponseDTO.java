@@ -25,7 +25,7 @@ public record PersonagemResponseDTO(
                 personagem.getTitulo(),
                 personagem.getPrestigio(),
                 personagem.getDescricao(),
-                personagem.getFoto(),
+                personagem.getImageUrl(),
                 new ArrayList<>()
         );
     }
