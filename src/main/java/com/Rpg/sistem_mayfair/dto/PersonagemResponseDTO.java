@@ -15,6 +15,10 @@ public record PersonagemResponseDTO(
         String imageUrl,
         List<Object> events
 ) {
+
+    private static final String BASE_URL =
+            "https://sistem-mayfair.onrender.com";
+
     public PersonagemResponseDTO(Personagem personagem) {
         this(
                 String.valueOf(personagem.getId_personagens()),
@@ -25,8 +29,17 @@ public record PersonagemResponseDTO(
                 personagem.getTitulo(),
                 personagem.getPrestigio(),
                 personagem.getDescricao(),
-                personagem.getImageUrl(),
+                normalizeImageUrl(personagem.getImageUrl()),
+
                 new ArrayList<>()
         );
+    }
+
+    private static String normalizeImageUrl(String url) {
+        if (url == null || url.isBlank()) return null;
+
+        if (url.startsWith("http")) return url;
+
+        return BASE_URL + url;
     }
 }
