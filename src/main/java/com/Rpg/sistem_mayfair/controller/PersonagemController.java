@@ -25,8 +25,24 @@ public class PersonagemController {
     private final PrestigioService prestigioService;
     private final CloudinaryService cloudinaryService;
 
+    // Método Auxiliar para limpar a URL caso venha como JSON do Front
+    private String extrairUrlLimpa(String urlRaw) {
+        if (urlRaw == null || urlRaw.isBlank()) return null;
+
+        String url = urlRaw.trim();
+        // Se a string começar com { e contiver "url", extraímos o conteúdo entre as aspas do valor
+        if (url.startsWith("{") && url.contains("\"url\"")) {
+            try {
+                return url.split("\"url\"\\s*:\\s*\"")[1].split("\"")[0];
+            } catch (Exception e) {
+                return url; // Retorna o original caso o parse falhe
+            }
+        }
+        return url;
+    }
+
     // =========================================
-    // CRIAR PERSONAGEM (OK)
+    // CRIAR PERSONAGEM (CORRIGIDO)
     // =========================================
     @PostMapping
     public PersonagemResponseDTO criarPersonagem(@RequestBody PersonagemDTO dto) {
@@ -45,10 +61,8 @@ public class PersonagemController {
         personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
         personagem.setDescricao(dto.getDescription());
 
-        // 🔥 BLINDADO (não salva null sem necessidade)
-        if (dto.getImageUrl() != null && !dto.getImageUrl().isBlank()) {
-            personagem.setImageUrl(dto.getImageUrl().trim());
-        }
+        // 🔥 Aplica a limpeza na criação também
+        personagem.setImageUrl(extrairUrlLimpa(dto.getImageUrl()));
 
         personagem.setFamilia(familia);
 
@@ -73,15 +87,13 @@ public class PersonagemController {
     // =========================================
     @GetMapping("/{id}")
     public PersonagemResponseDTO buscarPorId(@PathVariable Long id) {
-
         Personagem personagem = personagemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
-
         return new PersonagemResponseDTO(personagem);
     }
 
     // =========================================
-    // ATUALIZAR (🔥 BLINDADO CONTRA PERDA DE DADOS)
+    // ATUALIZAR (CORRIGIDO E BLINDADO)
     // =========================================
     @PutMapping("/{id}")
     public PersonagemResponseDTO atualizarPersonagem(
@@ -99,30 +111,15 @@ public class PersonagemController {
                     .orElse(null);
         }
 
-        // 🔥 UPDATE SEGURO (NUNCA SOBRESCREVE COM NULL)
+        if (dto.getName() != null) personagem.setNome(dto.getName());
+        if (dto.getAge() != null) personagem.setIdade(dto.getAge());
+        if (dto.getTitle() != null) personagem.setTitulo(dto.getTitle());
+        if (dto.getPrestige() != null) personagem.setPrestigio(dto.getPrestige());
+        if (dto.getDescription() != null) personagem.setDescricao(dto.getDescription());
 
-        if (dto.getName() != null) {
-            personagem.setNome(dto.getName());
-        }
-
-        if (dto.getAge() != null) {
-            personagem.setIdade(dto.getAge());
-        }
-
-        if (dto.getTitle() != null) {
-            personagem.setTitulo(dto.getTitle());
-        }
-
-        if (dto.getPrestige() != null) {
-            personagem.setPrestigio(dto.getPrestige());
-        }
-
-        if (dto.getDescription() != null) {
-            personagem.setDescricao(dto.getDescription());
-        }
-
+        // 🔥 O PONTO CHAVE: Limpa a URL antes de salvar no objeto
         if (dto.getImageUrl() != null && !dto.getImageUrl().isBlank()) {
-            personagem.setImageUrl(dto.getImageUrl().trim());
+            personagem.setImageUrl(extrairUrlLimpa(dto.getImageUrl()));
         }
 
         if (familia != null) {
@@ -150,31 +147,23 @@ public class PersonagemController {
             @PathVariable Long id,
             @RequestBody EventoPrestigioDTO dto
     ) {
-
         Personagem atualizado = prestigioService.aplicarEvento(
                 id,
                 dto.getReason(),
                 dto.getDelta()
         );
-
         return new PersonagemResponseDTO(atualizado);
     }
 
     @PostMapping("/{id}/recalcular-prestigio")
     public PersonagemResponseDTO recalcular(@PathVariable Long id) {
-
         Personagem personagem = prestigioService.recalcularPrestigio(id);
-
         return new PersonagemResponseDTO(personagem);
     }
 
     @PostMapping("/upload")
-    public String uploadImagem(
-            @RequestParam("file") MultipartFile file
-    ) {
-
-        String imageUrl = cloudinaryService.uploadFile(file);
-
-        return imageUrl;
+    public String uploadImagem(@RequestParam("file") MultipartFile file) {
+        // Retorna a URL pura vinda do Cloudinary
+        return cloudinaryService.uploadFile(file);
     }
 }
