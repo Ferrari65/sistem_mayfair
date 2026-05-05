@@ -27,7 +27,6 @@ public record PersonagemResponseDTO(
                 personagem.getPrestigio(),
                 personagem.getDescricao(),
 
-                // 🔥 CORREÇÃO PRINCIPAL
                 cleanUrl(personagem.getImageUrl()),
 
                 new ArrayList<>()

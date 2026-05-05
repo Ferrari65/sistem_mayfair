@@ -86,4 +86,9 @@ public class FamiliaController {
 
         familiaRepository.delete(familia);
     }
+
+    @GetMapping
+    public List<Familia> listarTodas() {
+        return familiaRepository.findAll();
+    }
 }
