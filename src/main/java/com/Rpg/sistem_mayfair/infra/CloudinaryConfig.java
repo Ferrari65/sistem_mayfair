@@ -1,4 +1,5 @@
 package com.Rpg.sistem_mayfair.infra;
+
 import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
