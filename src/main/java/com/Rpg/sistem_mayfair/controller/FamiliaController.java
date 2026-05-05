@@ -23,9 +23,9 @@ public class FamiliaController {
     private final FamiliaRepository familiaRepository;
     private final PersonagemRepository personagemRepository;
 
+    // ================= CREATE =================
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Cadastra uma nova família")
     public Familia criarFamilia(@RequestBody @Valid FamiliaRequestDTO data) {
 
         Familia familia = new Familia();
@@ -40,19 +40,20 @@ public class FamiliaController {
         return familiaRepository.save(familia);
     }
 
+    // ================= LIST =================
     @GetMapping
-    @Operation(summary = "Lista todas as famílias cadastradas")
     public List<Familia> listarFamilias() {
         return familiaRepository.findAll();
     }
 
+    // ================= GET BY ID =================
     @GetMapping("/{id}")
     public Familia buscarPorId(@PathVariable Long id) {
-
         return familiaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Família não encontrada"));
     }
 
+    // ================= UPDATE =================
     @PutMapping("/{id}")
     public Familia atualizarFamilia(
             @PathVariable Long id,
@@ -72,23 +73,19 @@ public class FamiliaController {
         return familiaRepository.save(familia);
     }
 
+    // ================= DELETE =================
     @DeleteMapping("/{id}")
     public void deletarFamilia(@PathVariable Long id) {
 
         Familia familia = familiaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Família não encontrada"));
 
-        for (Personagem personagem : familia.getPersonagens()) {
+        for (var personagem : familia.getPersonagens()) {
             personagem.setFamilia(null);
         }
 
         personagemRepository.saveAll(familia.getPersonagens());
 
         familiaRepository.delete(familia);
-    }
-
-    @GetMapping
-    public List<Familia> listarTodas() {
-        return familiaRepository.findAll();
     }
 }
