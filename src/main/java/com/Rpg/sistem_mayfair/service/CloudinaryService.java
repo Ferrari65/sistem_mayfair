@@ -22,10 +22,16 @@ public class CloudinaryService {
                     Map.of()
             );
 
+            System.out.println(uploadResult);
+
             return uploadResult.get("secure_url").toString();
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao fazer upload da imagem");
+            e.printStackTrace();
+
+            throw new RuntimeException(
+                    "ERRO CLOUDINARY REAL: " + e.getMessage()
+            );
         }
     }
 }
