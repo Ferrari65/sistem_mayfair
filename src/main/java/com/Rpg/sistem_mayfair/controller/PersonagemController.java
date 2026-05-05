@@ -56,18 +56,18 @@ public class PersonagemController {
         personagem.setDescricao(dto.getDescription());
         personagem.setImageUrl(extrairUrlLimpa(dto.getImageUrl()));
 
-        // 🔥 família (corrigido e seguro)
         if (dto.getFamilyId() != null) {
             Familia familia = familiaRepository.findById(dto.getFamilyId())
-                    .orElse(null);
+                    .orElseThrow(() ->
+                            new RuntimeException("Família não encontrada: " + dto.getFamilyId())
+                    );
+
             personagem.setFamilia(familia);
-        } else {
-            personagem.setFamilia(null);
         }
 
-        return new PersonagemResponseDTO(
-                personagemRepository.save(personagem)
-        );
+        Personagem salvo = personagemRepository.save(personagem);
+
+        return new PersonagemResponseDTO(salvo);
     }
 
     // ===================== LIST =====================

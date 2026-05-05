@@ -19,11 +19,14 @@ public class FamiliaService {
         Familia familia = familiaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Família não encontrada"));
 
-        for (Personagem personagem : familia.getPersonagens()) {
-            personagem.setFamilia(null);
-        }
+        if (familia.getPersonagens() != null && !familia.getPersonagens().isEmpty()) {
 
-        personagemRepository.saveAll(familia.getPersonagens());
+            for (Personagem personagem : familia.getPersonagens()) {
+                personagem.setFamilia(null);
+            }
+
+            personagemRepository.saveAll(familia.getPersonagens());
+        }
 
         familiaRepository.delete(familia);
     }

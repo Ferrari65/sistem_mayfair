@@ -1,5 +1,6 @@
 package com.Rpg.sistem_mayfair.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -38,12 +39,14 @@ public class Personagem {
 
     @ManyToOne
     @JoinColumn(name = "id_familia")
+    @JsonIgnoreProperties("personagens")
     private Familia familia;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("personagem")
     private List<HistoricoPrestigio> historicoPrestigio;
 
     @PrePersist
