@@ -169,10 +169,14 @@ public class PersonagemController {
     }
 
     @PostMapping("/upload")
-    public String uploadImagem(
+    public java.util.Map<String, String> uploadImagem(
             @RequestParam("file") MultipartFile file
     ) {
 
-        return cloudinaryService.uploadFile(file);
+        String imageUrl = cloudinaryService.uploadFile(file);
+
+        return java.util.Map.of(
+                "url", imageUrl
+        );
     }
 }
