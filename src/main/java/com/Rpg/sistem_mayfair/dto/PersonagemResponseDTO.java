@@ -20,22 +20,16 @@ public record PersonagemResponseDTO(
         this(
                 String.valueOf(personagem.getId_personagens()),
                 personagem.getNome(),
+
                 personagem.getFamilia() != null
                         ? personagem.getFamilia().getNome()
                         : "Sem Família",
+
                 personagem.getTitulo(),
                 personagem.getPrestigio(),
                 personagem.getDescricao(),
-
-                cleanUrl(personagem.getImageUrl()),
-
+                personagem.getImageUrl(),
                 new ArrayList<>()
         );
-    }
-
-    // 🔥 SEMPRE retorna puro (Cloudinary já é URL completa)
-    private static String cleanUrl(String url) {
-        if (url == null || url.isBlank()) return null;
-        return url;
     }
 }

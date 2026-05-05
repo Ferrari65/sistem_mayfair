@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/personagens")
 @RequiredArgsConstructor
-@CrossOrigin("*") // Ajuste conforme a necessidade do seu Front-end
+@CrossOrigin("*")
 public class PersonagemController {
 
     private final PersonagemRepository personagemRepository;
@@ -27,16 +27,13 @@ public class PersonagemController {
     private final PrestigioService prestigioService;
     private final CloudinaryService cloudinaryService;
 
-    /**
-     * Método Auxiliar para limpar a URL caso venha como JSON do Front
-     */
+    // ===================== UTILS =====================
     private String extrairUrlLimpa(String urlRaw) {
         if (urlRaw == null || urlRaw.isBlank()) return null;
 
         String url = urlRaw.trim();
         if (url.startsWith("{") && url.contains("\"url\"")) {
             try {
-                // Tenta extrair o valor da chave "url" de uma string JSON manual
                 return url.split("\"url\"\\s*:\\s*\"")[1].split("\"")[0];
             } catch (Exception e) {
                 return url;
@@ -45,27 +42,35 @@ public class PersonagemController {
         return url;
     }
 
+    // ===================== CREATE =====================
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PersonagemResponseDTO criarPersonagem(@RequestBody PersonagemDTO dto) {
+
         Personagem personagem = new Personagem();
+
         personagem.setNome(dto.getName());
         personagem.setIdade(dto.getAge());
         personagem.setTitulo(dto.getTitle());
         personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
         personagem.setDescricao(dto.getDescription());
-
-        // Aplica a limpeza da URL na criação também
         personagem.setImageUrl(extrairUrlLimpa(dto.getImageUrl()));
 
+        // 🔥 família (corrigido e seguro)
         if (dto.getFamilyId() != null) {
-            familiaRepository.findById(dto.getFamilyId())
-                    .ifPresent(personagem::setFamilia);
+            Familia familia = familiaRepository.findById(dto.getFamilyId())
+                    .orElse(null);
+            personagem.setFamilia(familia);
+        } else {
+            personagem.setFamilia(null);
         }
 
-        return new PersonagemResponseDTO(personagemRepository.save(personagem));
+        return new PersonagemResponseDTO(
+                personagemRepository.save(personagem)
+        );
     }
 
+    // ===================== LIST =====================
     @GetMapping
     public List<PersonagemResponseDTO> listarPersonagens() {
         return personagemRepository.findAll()
@@ -74,52 +79,56 @@ public class PersonagemController {
                 .toList();
     }
 
+    // ===================== GET BY ID =====================
     @GetMapping("/{id}")
     public PersonagemResponseDTO buscarPorId(@PathVariable Long id) {
         Personagem personagem = personagemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
+
         return new PersonagemResponseDTO(personagem);
     }
 
+    // ===================== UPDATE =====================
     @PutMapping("/{id}")
     public PersonagemResponseDTO atualizarPersonagem(
             @PathVariable Long id,
             @RequestBody PersonagemDTO dto
     ) {
+
         Personagem personagem = personagemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
 
-        // Atualização de campos básicos
         if (dto.getName() != null) personagem.setNome(dto.getName());
         if (dto.getAge() != null) personagem.setIdade(dto.getAge());
         if (dto.getTitle() != null) personagem.setTitulo(dto.getTitle());
         if (dto.getDescription() != null) personagem.setDescricao(dto.getDescription());
         if (dto.getPrestige() != null) personagem.setPrestigio(dto.getPrestige());
-
-        // Proteção e limpeza da URL da imagem
         if (dto.getImageUrl() != null) {
             personagem.setImageUrl(extrairUrlLimpa(dto.getImageUrl()));
         }
 
-        // Lógica da Família
+        // 🔥 família (mesma regra do create)
         if (dto.getFamilyId() != null) {
-            Familia familia = familiaRepository.findById(dto.getFamilyId()).orElse(null);
+            Familia familia = familiaRepository.findById(dto.getFamilyId())
+                    .orElse(null);
             personagem.setFamilia(familia);
         } else {
             personagem.setFamilia(null);
         }
 
-        return new PersonagemResponseDTO(personagemRepository.save(personagem));
+        return new PersonagemResponseDTO(
+                personagemRepository.save(personagem)
+        );
     }
 
+    // ===================== DELETE =====================
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarPersonagem(@PathVariable Long id) {
         personagemRepository.deleteById(id);
     }
 
-    // --- EVENTOS E PRESTÍGIO ---
-
+    // ===================== EVENTOS =====================
     @PostMapping("/{id}/eventos")
     public PersonagemResponseDTO adicionarEvento(
             @PathVariable Long id,
@@ -130,17 +139,18 @@ public class PersonagemController {
                 dto.getReason(),
                 dto.getDelta()
         );
+
         return new PersonagemResponseDTO(atualizado);
     }
 
+    // ===================== PRESTÍGIO =====================
     @PostMapping("/{id}/recalcular-prestigio")
     public PersonagemResponseDTO recalcular(@PathVariable Long id) {
         Personagem personagem = prestigioService.recalcularPrestigio(id);
         return new PersonagemResponseDTO(personagem);
     }
 
-    // --- UPLOAD ---
-
+    // ===================== UPLOAD =====================
     @PostMapping("/upload")
     public String uploadImagem(@RequestParam("file") MultipartFile file) {
         return cloudinaryService.uploadFile(file);

@@ -6,12 +6,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PersonagemDTO {
-        private String name;
-        private Integer age;
-        private String title;
-        private Integer prestige;
-        private String description;
-        private String imageUrl;
+    private String name;
+    private Integer age;
+    private String title;
+    private Integer prestige;
+    private String description;
+    private String imageUrl;
 
-        private Long familyId;
+    private Long familyId;
 }

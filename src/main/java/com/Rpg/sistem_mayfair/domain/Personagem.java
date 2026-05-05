@@ -1,6 +1,5 @@
 package com.Rpg.sistem_mayfair.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -34,11 +33,11 @@ public class Personagem {
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
+
     private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "id_familia")
-    @JsonBackReference
     private Familia familia;
 
     @Column(updatable = false)
@@ -54,7 +53,6 @@ public class Personagem {
 
     public void alterarPrestigio(int quantidade) {
         int novo = this.prestigio + quantidade;
-
         this.prestigio = Math.max(0, Math.min(50, novo));
     }
 }

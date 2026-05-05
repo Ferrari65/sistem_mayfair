@@ -1,6 +1,5 @@
 package com.Rpg.sistem_mayfair.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +19,7 @@ public class Familia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nome;
     private String titulo;
     private String dilema;
@@ -27,7 +27,6 @@ public class Familia {
     private String matriarca;
     private String patriarca;
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "familia")
     private List<Personagem> personagens;
 }
