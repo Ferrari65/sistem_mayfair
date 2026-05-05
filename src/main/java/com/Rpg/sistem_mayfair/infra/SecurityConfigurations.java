@@ -32,7 +32,7 @@ public class SecurityConfigurations {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
-                "http://localhost:5173",
+                "http://localhost:8080",
                 "https://society-s-stage.vercel.app"
         ));
 
