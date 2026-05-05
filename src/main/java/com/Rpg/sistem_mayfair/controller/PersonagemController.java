@@ -7,9 +7,11 @@ import com.Rpg.sistem_mayfair.dto.PersonagemDTO;
 import com.Rpg.sistem_mayfair.dto.PersonagemResponseDTO;
 import com.Rpg.sistem_mayfair.repository.FamiliaRepository;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
+import com.Rpg.sistem_mayfair.service.CloudinaryService;
 import com.Rpg.sistem_mayfair.service.PrestigioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class PersonagemController {
     private final PersonagemRepository personagemRepository;
     private final FamiliaRepository familiaRepository;
     private final PrestigioService prestigioService;
+    private final CloudinaryService cloudinaryService;
 
     // =========================================
     // CRIAR PERSONAGEM (OK)
@@ -163,5 +166,13 @@ public class PersonagemController {
         Personagem personagem = prestigioService.recalcularPrestigio(id);
 
         return new PersonagemResponseDTO(personagem);
+    }
+
+    @PostMapping("/upload")
+    public String uploadImagem(
+            @RequestParam("file") MultipartFile file
+    ) {
+
+        return cloudinaryService.uploadFile(file);
     }
 }

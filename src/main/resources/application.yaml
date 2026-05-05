@@ -24,3 +24,8 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+  cloudinary:
+    cloud-name: SEU_CLOUD_NAME
+    api-key: SUA_API_KEY
+    api-secret: SEU_API_SECRET
