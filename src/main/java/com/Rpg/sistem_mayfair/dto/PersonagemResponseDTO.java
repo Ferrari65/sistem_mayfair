@@ -16,9 +16,6 @@ public record PersonagemResponseDTO(
         List<Object> events
 ) {
 
-    private static final String BASE_URL =
-            "https://sistem-mayfair.onrender.com";
-
     public PersonagemResponseDTO(Personagem personagem) {
         this(
                 String.valueOf(personagem.getId_personagens()),
@@ -29,17 +26,17 @@ public record PersonagemResponseDTO(
                 personagem.getTitulo(),
                 personagem.getPrestigio(),
                 personagem.getDescricao(),
-                normalizeImageUrl(personagem.getImageUrl()),
+
+                // 🔥 CORREÇÃO PRINCIPAL
+                cleanUrl(personagem.getImageUrl()),
 
                 new ArrayList<>()
         );
     }
 
-    private static String normalizeImageUrl(String url) {
+    // 🔥 SEMPRE retorna puro (Cloudinary já é URL completa)
+    private static String cleanUrl(String url) {
         if (url == null || url.isBlank()) return null;
-
-        if (url.startsWith("http")) return url;
-
-        return BASE_URL + url;
+        return url;
     }
 }
