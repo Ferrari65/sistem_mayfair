@@ -14,4 +14,5 @@ public class PersonagemDTO {
     private String imageUrl;
 
     private Long familyId;
+    private String shape;
 }

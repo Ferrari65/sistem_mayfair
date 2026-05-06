@@ -8,6 +8,8 @@ import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PersonagemService {
@@ -15,6 +17,9 @@ public class PersonagemService {
     private final PersonagemRepository personagemRepository;
     private final FamiliaRepository familiaRepository;
 
+    // =========================
+    // CREATE PERSONAGEM
+    // =========================
     public Personagem criar(PersonagemDTO dto) {
 
         Personagem personagem = new Personagem();
@@ -22,7 +27,9 @@ public class PersonagemService {
         personagem.setNome(dto.getName());
         personagem.setIdade(dto.getAge());
         personagem.setTitulo(dto.getTitle());
-        personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
+        personagem.setPrestigio(
+                dto.getPrestige() != null ? dto.getPrestige() : 20
+        );
         personagem.setDescricao(dto.getDescription());
         personagem.setImageUrl(dto.getImageUrl());
 
@@ -34,5 +41,44 @@ public class PersonagemService {
         }
 
         return personagemRepository.save(personagem);
+    }
+
+    // =========================
+    // LISTAR PERSONAGENS (SEGURANÇA)
+    // =========================
+    public List<PersonagemDTO> listar(boolean isAdmin) {
+
+        return personagemRepository.findAll()
+                .stream()
+                .map(p -> toDTO(p, isAdmin))
+                .toList();
+    }
+
+    // =========================
+    // CONVERTER ENTITY -> DTO
+    // =========================
+    private PersonagemDTO toDTO(Personagem p, boolean isAdmin) {
+
+        PersonagemDTO dto = new PersonagemDTO();
+
+        dto.setName(p.getNome());
+        dto.setAge(p.getIdade());
+        dto.setTitle(p.getTitulo());
+        dto.setPrestige(p.getPrestigio());
+        dto.setDescription(p.getDescricao());
+        dto.setImageUrl(p.getImageUrl());
+
+        if (p.getFamilia() != null) {
+            dto.setFamilyId(p.getFamilia().getId());
+        }
+
+        // 🔐 REGRA DE SEGURANÇA (SHAPE)
+        if (isAdmin) {
+            dto.setShape(p.getShape());
+        } else {
+            dto.setShape(null);
+        }
+
+        return dto;
     }
 }

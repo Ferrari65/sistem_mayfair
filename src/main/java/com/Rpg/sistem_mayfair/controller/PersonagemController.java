@@ -11,6 +11,7 @@ import com.Rpg.sistem_mayfair.service.CloudinaryService;
 import com.Rpg.sistem_mayfair.service.PrestigioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,21 +27,6 @@ public class PersonagemController {
     private final FamiliaRepository familiaRepository;
     private final PrestigioService prestigioService;
     private final CloudinaryService cloudinaryService;
-
-    // ===================== UTILS =====================
-    private String extrairUrlLimpa(String urlRaw) {
-        if (urlRaw == null || urlRaw.isBlank()) return null;
-
-        String url = urlRaw.trim();
-        if (url.startsWith("{") && url.contains("\"url\"")) {
-            try {
-                return url.split("\"url\"\\s*:\\s*\"")[1].split("\"")[0];
-            } catch (Exception e) {
-                return url;
-            }
-        }
-        return url;
-    }
 
     // ===================== CREATE =====================
     @PostMapping
@@ -70,22 +56,31 @@ public class PersonagemController {
         return new PersonagemResponseDTO(salvo);
     }
 
-    // ===================== LIST =====================
+    // ===================== LIST (COM SEGURANÇA) =====================
     @GetMapping
-    public List<PersonagemResponseDTO> listarPersonagens() {
+    public List<PersonagemResponseDTO> listarPersonagens(Authentication auth) {
+
+        boolean isAdmin = isAdmin(auth);
+
         return personagemRepository.findAll()
                 .stream()
-                .map(PersonagemResponseDTO::new)
+                .map(p -> new PersonagemResponseDTO(p, isAdmin))
                 .toList();
     }
 
-    // ===================== GET BY ID =====================
+    // ===================== GET BY ID (COM SEGURANÇA) =====================
     @GetMapping("/{id}")
-    public PersonagemResponseDTO buscarPorId(@PathVariable Long id) {
+    public PersonagemResponseDTO buscarPorId(
+            @PathVariable Long id,
+            Authentication auth
+    ) {
+
+        boolean isAdmin = isAdmin(auth);
+
         Personagem personagem = personagemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
 
-        return new PersonagemResponseDTO(personagem);
+        return new PersonagemResponseDTO(personagem, isAdmin);
     }
 
     // ===================== UPDATE =====================
@@ -107,7 +102,6 @@ public class PersonagemController {
             personagem.setImageUrl(extrairUrlLimpa(dto.getImageUrl()));
         }
 
-        // 🔥 família (mesma regra do create)
         if (dto.getFamilyId() != null) {
             Familia familia = familiaRepository.findById(dto.getFamilyId())
                     .orElse(null);
@@ -134,6 +128,7 @@ public class PersonagemController {
             @PathVariable Long id,
             @RequestBody EventoPrestigioDTO dto
     ) {
+
         Personagem atualizado = prestigioService.aplicarEvento(
                 id,
                 dto.getReason(),
@@ -146,7 +141,9 @@ public class PersonagemController {
     // ===================== PRESTÍGIO =====================
     @PostMapping("/{id}/recalcular-prestigio")
     public PersonagemResponseDTO recalcular(@PathVariable Long id) {
+
         Personagem personagem = prestigioService.recalcularPrestigio(id);
+
         return new PersonagemResponseDTO(personagem);
     }
 
@@ -154,5 +151,36 @@ public class PersonagemController {
     @PostMapping("/upload")
     public String uploadImagem(@RequestParam("file") MultipartFile file) {
         return cloudinaryService.uploadFile(file);
+    }
+
+    // ===================== UTILS =====================
+    private boolean isAdmin(Authentication auth) {
+        if (auth == null || auth.getPrincipal() == null) return false;
+
+        try {
+            Object principal = auth.getPrincipal();
+
+            // ajuste aqui conforme seu User real
+            return principal.toString().contains("ADMIN");
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String extrairUrlLimpa(String urlRaw) {
+        if (urlRaw == null || urlRaw.isBlank()) return null;
+
+        String url = urlRaw.trim();
+
+        if (url.startsWith("{") && url.contains("\"url\"")) {
+            try {
+                return url.split("\"url\"\\s*:\\s*\"")[1].split("\"")[0];
+            } catch (Exception e) {
+                return url;
+            }
+        }
+
+        return url;
     }
 }

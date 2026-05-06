@@ -45,6 +45,12 @@ public class Personagem {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    private String shape;
+
+    @ManyToOne
+    @JoinColumn(name = "player_id")
+    private Player player;
+
     @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("personagem")
     private List<HistoricoPrestigio> historicoPrestigio;

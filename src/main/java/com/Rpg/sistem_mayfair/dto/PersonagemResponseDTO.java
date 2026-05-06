@@ -13,10 +13,17 @@ public record PersonagemResponseDTO(
         Integer prestige,
         String description,
         String imageUrl,
-        List<Object> events
+        List<Object> events,
+        String shape
 ) {
 
+    // ✔ DEFAULT (SEM SHAPE)
     public PersonagemResponseDTO(Personagem personagem) {
+        this(personagem, false);
+    }
+
+    // ✔ COM CONTROLE DE ADMIN
+    public PersonagemResponseDTO(Personagem personagem, boolean isAdmin) {
         this(
                 String.valueOf(personagem.getId_personagens()),
                 personagem.getNome(),
@@ -29,7 +36,9 @@ public record PersonagemResponseDTO(
                 personagem.getPrestigio(),
                 personagem.getDescricao(),
                 personagem.getImageUrl(),
-                new ArrayList<>()
+                new ArrayList<>(),
+
+                isAdmin ? personagem.getShape() : null
         );
     }
 }

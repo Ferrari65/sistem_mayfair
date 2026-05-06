@@ -1,5 +1,6 @@
 package com.Rpg.sistem_mayfair.domain;
 
+import com.Rpg.sistem_mayfair.domain.Enum.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,5 +20,6 @@ public class Admin {
     @Column(nullable = false)
     private String password;
 
-    private String role = "ADMIN";
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.ADMIN;
 }
