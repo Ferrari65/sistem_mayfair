@@ -62,7 +62,7 @@ public class DestaqueTemporadaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<DestaqueTemporadaResponseDTO> atualizar(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody DestaqueTemporadaRequestDTO dto
     ) {
         return ResponseEntity.ok(service.atualizar(id, dto));

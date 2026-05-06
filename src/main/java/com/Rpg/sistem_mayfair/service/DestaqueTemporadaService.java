@@ -72,7 +72,7 @@ public class DestaqueTemporadaService {
     }
 
     @Transactional
-    public DestaqueTemporadaResponseDTO atualizar(Long id, DestaqueTemporadaRequestDTO dto) {
+    public DestaqueTemporadaResponseDTO atualizar(String id, DestaqueTemporadaRequestDTO dto) {
 
         DestaqueTemporada destaque =
                 destaqueRepository.findById(id)
