@@ -28,7 +28,6 @@ public class Familia {
     private String matriarca;
     private String patriarca;
 
-    // 🔥 EVITA LOOP INFINITO NO JSON
     @OneToMany(mappedBy = "familia")
     @JsonIgnore
     private List<Personagem> personagens;

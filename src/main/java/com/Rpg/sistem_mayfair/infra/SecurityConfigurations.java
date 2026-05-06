@@ -30,7 +30,6 @@ public class SecurityConfigurations {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // 🔥 libera tudo (evita 403 em dev + swagger + vercel)
         config.setAllowedOriginPatterns(List.of("*"));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

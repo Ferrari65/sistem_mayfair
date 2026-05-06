@@ -58,4 +58,6 @@ public class Personagem {
         int novo = this.prestigio + quantidade;
         this.prestigio = Math.max(0, Math.min(50, novo));
     }
+
+    private Boolean diamanteTemporada = false;
 }
