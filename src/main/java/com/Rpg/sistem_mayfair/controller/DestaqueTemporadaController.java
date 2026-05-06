@@ -43,7 +43,6 @@ public class DestaqueTemporadaController {
 
     @GetMapping("/atual")
     public ResponseEntity<DestaqueTemporadaResponseDTO> buscarAtual() {
-
         return ResponseEntity.ok(
                 service.buscarAtual()
         );
