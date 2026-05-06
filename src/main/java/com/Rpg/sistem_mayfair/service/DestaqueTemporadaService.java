@@ -1,69 +1,46 @@
 package com.Rpg.sistem_mayfair.service;
 
 import com.Rpg.sistem_mayfair.domain.*;
-
 import com.Rpg.sistem_mayfair.repository.DestaqueTemporadaRepository;
 import com.Rpg.sistem_mayfair.repository.FamiliaRepository;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
-
 import jakarta.transaction.Transactional;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DestaqueTemporadaService {
 
     private final DestaqueTemporadaRepository destaqueRepository;
-
     private final PersonagemRepository personagemRepository;
-
     private final FamiliaRepository familiaRepository;
 
-    public DestaqueTemporadaService(
-            DestaqueTemporadaRepository destaqueRepository,
-            PersonagemRepository personagemRepository,
-            FamiliaRepository familiaRepository
-    ) {
-        this.destaqueRepository = destaqueRepository;
-        this.personagemRepository = personagemRepository;
-        this.familiaRepository = familiaRepository;
-    }
-
     @Transactional
-    public DestaqueTemporadaResponseDTO criar(
-            DestaqueTemporadaRequestDTO dto
-    ) {
+    public DestaqueTemporadaResponseDTO criar(DestaqueTemporadaRequestDTO dto) {
 
-        if (destaqueRepository.existsByTemporada(dto.temporada())) {
-            throw new RuntimeException(
-                    "Já existe um destaque para esta temporada."
-            );
-        }
+        DestaqueTemporada destaque =
+                destaqueRepository.findByTemporada(dto.temporada())
+                        .orElse(new DestaqueTemporada());
+
+        destaque.setTemporada(dto.temporada());
 
         Personagem diamante = null;
-
         Familia familia = null;
 
         if (dto.diamanteId() != null) {
             diamante = personagemRepository.findById(dto.diamanteId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Personagem não encontrado"));
+                    .orElse(null);
         }
 
         if (dto.familiaDestaqueId() != null) {
             familia = familiaRepository.findById(dto.familiaDestaqueId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Família não encontrada"));
+                    .orElse(null);
         }
 
-        DestaqueTemporada destaque = new DestaqueTemporada();
-
-        destaque.setTemporada(dto.temporada());
-
         destaque.setDiamante(diamante);
-
         destaque.setFamiliaDestaque(familia);
 
         destaqueRepository.save(destaque);
@@ -72,7 +49,6 @@ public class DestaqueTemporadaService {
     }
 
     public List<DestaqueTemporadaResponseDTO> listar() {
-
         return destaqueRepository.findAll()
                 .stream()
                 .map(this::toResponse)
@@ -80,66 +56,45 @@ public class DestaqueTemporadaService {
     }
 
     public DestaqueTemporadaResponseDTO buscarAtual() {
-
-        DestaqueTemporada destaque =
-                destaqueRepository
-                        .findTopByOrderByCriadoEmDesc()
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Nenhum destaque encontrado"
-                                ));
+        DestaqueTemporada destaque = destaqueRepository
+                .findTopByOrderByCriadoEmDesc()
+                .orElseThrow(() -> new RuntimeException("Nenhum destaque encontrado"));
 
         return toResponse(destaque);
     }
 
-    public DestaqueTemporadaResponseDTO buscarPorTemporada(
-            String temporada
-    ) {
-
-        DestaqueTemporada destaque =
-                destaqueRepository
-                        .findByTemporada(temporada)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Temporada não encontrada"
-                                ));
+    public DestaqueTemporadaResponseDTO buscarPorTemporada(String temporada) {
+        DestaqueTemporada destaque = destaqueRepository
+                .findByTemporada(temporada)
+                .orElseThrow(() -> new RuntimeException("Temporada não encontrada: " + temporada));
 
         return toResponse(destaque);
     }
 
     @Transactional
-    public DestaqueTemporadaResponseDTO atualizar(
-            String id,
-            DestaqueTemporadaRequestDTO dto
-    ) {
+    public DestaqueTemporadaResponseDTO atualizar(Long id, DestaqueTemporadaRequestDTO dto) {
 
         DestaqueTemporada destaque =
                 destaqueRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Destaque não encontrado"
-                                ));
+                                new RuntimeException("Destaque não encontrado"));
+
+        destaque.setTemporada(dto.temporada());
 
         Personagem diamante = null;
-
         Familia familia = null;
 
         if (dto.diamanteId() != null) {
             diamante = personagemRepository.findById(dto.diamanteId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Personagem não encontrado"));
+                    .orElse(null);
         }
 
         if (dto.familiaDestaqueId() != null) {
             familia = familiaRepository.findById(dto.familiaDestaqueId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Família não encontrada"));
+                    .orElse(null);
         }
 
-        destaque.setTemporada(dto.temporada());
-
         destaque.setDiamante(diamante);
-
         destaque.setFamiliaDestaque(familia);
 
         destaqueRepository.save(destaque);
@@ -147,32 +102,14 @@ public class DestaqueTemporadaService {
         return toResponse(destaque);
     }
 
-    private DestaqueTemporadaResponseDTO toResponse(
-            DestaqueTemporada destaque
-    ) {
-
+    private DestaqueTemporadaResponseDTO toResponse(DestaqueTemporada destaque) {
         return new DestaqueTemporadaResponseDTO(
-
                 destaque.getId(),
-
                 destaque.getTemporada(),
-
-                destaque.getDiamante() != null
-                        ? destaque.getDiamante().getId_personagens()
-                        : null,
-
-                destaque.getDiamante() != null
-                        ? destaque.getDiamante().getNome()
-                        : null,
-
-                destaque.getFamiliaDestaque() != null
-                        ? destaque.getFamiliaDestaque().getId()
-                        : null,
-
-                destaque.getFamiliaDestaque() != null
-                        ? destaque.getFamiliaDestaque().getNome()
-                        : null,
-
+                destaque.getDiamante() != null ? destaque.getDiamante().getId_personagens() : null,
+                destaque.getDiamante() != null ? destaque.getDiamante().getNome() : null,
+                destaque.getFamiliaDestaque() != null ? destaque.getFamiliaDestaque().getId() : null,
+                destaque.getFamiliaDestaque() != null ? destaque.getFamiliaDestaque().getNome() : null,
                 destaque.getCriadoEm()
         );
     }

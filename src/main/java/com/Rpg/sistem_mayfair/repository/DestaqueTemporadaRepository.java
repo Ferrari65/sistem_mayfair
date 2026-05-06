@@ -7,13 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface DestaqueTemporadaRepository
-        extends JpaRepository<DestaqueTemporada, String> {
+        extends JpaRepository<DestaqueTemporada, Long> {
+
 
     Optional<DestaqueTemporada>
     findTopByOrderByCriadoEmDesc();
 
     Optional<DestaqueTemporada>
     findByTemporada(String temporada);
-
     boolean existsByTemporada(String temporada);
+
 }
