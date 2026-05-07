@@ -7,7 +7,7 @@ import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,9 @@ public class PrestigioService {
         historico.setDescricao(descricao);
         historico.setPontos(delta);
         historico.setPersonagem(personagem);
-        historico.setCreatedAt(LocalDateTime.now());
+
+        // 🔥 CORREÇÃO AQUI
+        historico.setCreatedAt(OffsetDateTime.now());
 
         historicoRepository.save(historico);
 

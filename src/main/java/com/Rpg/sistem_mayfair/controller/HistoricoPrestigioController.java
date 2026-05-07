@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @RestController
@@ -39,10 +39,9 @@ public class HistoricoPrestigioController {
 
         historico.setDescricao(dto.getDescricao());
         historico.setPontos(dto.getPontos());
-
-        historico.setCreatedAt(LocalDateTime.now());
-
         historico.setPersonagem(personagem);
+
+        historico.setCreatedAt(OffsetDateTime.now());
 
         return historicoRepository.save(historico);
     }
@@ -76,7 +75,6 @@ public class HistoricoPrestigioController {
 
         historico.setDescricao(dto.getDescricao());
         historico.setPontos(dto.getPontos());
-
         historico.setPersonagem(personagem);
 
         return historicoRepository.save(historico);
