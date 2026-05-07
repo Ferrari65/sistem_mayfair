@@ -1,5 +1,6 @@
 package com.Rpg.sistem_mayfair.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
