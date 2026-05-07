@@ -15,16 +15,22 @@ public class HistoricoPrestigio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idHistorico;
+    private Long idHistorico;
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
     private Integer pontos;
 
+    @Column(nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "id_personagem")
     private Personagem personagem;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = OffsetDateTime.now();
+    }
 }
