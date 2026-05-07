@@ -58,7 +58,8 @@ public class SecurityConfigurations {
                                 "/familias/**",
                                 "/destaques/**",
                                 "/historico/**",
-                                "/players/**"
+                                "/players/**",
+                                "/estabelecimentos/**"
 
                         ).permitAll()
 
