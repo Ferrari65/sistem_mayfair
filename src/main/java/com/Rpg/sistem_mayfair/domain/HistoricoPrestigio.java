@@ -1,10 +1,9 @@
 package com.Rpg.sistem_mayfair.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "historico_prestigio")
@@ -20,10 +19,8 @@ public class HistoricoPrestigio {
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
-
     private Integer pontos;
-
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "id_personagem")
