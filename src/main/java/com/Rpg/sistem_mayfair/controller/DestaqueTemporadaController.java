@@ -6,13 +6,13 @@ import com.Rpg.sistem_mayfair.domain.DestaqueTemporadaResponseDTO;
 import com.Rpg.sistem_mayfair.service.DestaqueTemporadaService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/destaques")
-@CrossOrigin("*")
 public class DestaqueTemporadaController {
 
     private final DestaqueTemporadaService service;
@@ -24,6 +24,7 @@ public class DestaqueTemporadaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DestaqueTemporadaResponseDTO> criar(
             @RequestBody DestaqueTemporadaRequestDTO dto
     ) {
@@ -60,6 +61,7 @@ public class DestaqueTemporadaController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DestaqueTemporadaResponseDTO> atualizar(
             @PathVariable String id,
             @RequestBody DestaqueTemporadaRequestDTO dto

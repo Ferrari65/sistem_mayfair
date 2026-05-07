@@ -8,7 +8,7 @@ import com.Rpg.sistem_mayfair.repository.AdminRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List; // Faltava essa importação
+import java.util.List;
 
 @Service
 public class AdminService {
@@ -26,7 +26,6 @@ public class AdminService {
     }
 
     public TokenResponse login(AdminLoginDTO dto) {
-
         Admin admin = adminRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> new RuntimeException("Admin não encontrado"));
 
@@ -34,10 +33,9 @@ public class AdminService {
             throw new RuntimeException("Senha inválida");
         }
 
-        // List.of() exige o import java.util.List
         String token = jwtService.generateToken(
                 admin.getUsername(),
-                List.of("ROLE_ADMIN")
+                List.of("ADMIN")
         );
 
         return new TokenResponse(token);

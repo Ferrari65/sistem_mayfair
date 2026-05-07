@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,6 +50,7 @@ public class Personagem {
 
     @ManyToOne
     @JoinColumn(name = "player_id")
+    @JsonBackReference
     private Player player;
 
     @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)

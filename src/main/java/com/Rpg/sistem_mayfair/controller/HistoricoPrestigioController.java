@@ -6,6 +6,7 @@ import com.Rpg.sistem_mayfair.dto.HistoricoPrestigioDTO;
 import com.Rpg.sistem_mayfair.repository.HistoricoPrestigioRepository;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class HistoricoPrestigioController {
     private final PersonagemRepository personagemRepository;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public HistoricoPrestigio criarHistorico(
             @RequestBody HistoricoPrestigioDTO dto
     ) {
@@ -60,6 +62,7 @@ public class HistoricoPrestigioController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public HistoricoPrestigio atualizarHistorico(
             @PathVariable Integer id,
             @RequestBody HistoricoPrestigioDTO dto

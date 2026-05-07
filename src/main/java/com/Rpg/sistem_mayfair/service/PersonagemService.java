@@ -2,9 +2,11 @@ package com.Rpg.sistem_mayfair.service;
 
 import com.Rpg.sistem_mayfair.domain.Familia;
 import com.Rpg.sistem_mayfair.domain.Personagem;
+import com.Rpg.sistem_mayfair.domain.Player;
 import com.Rpg.sistem_mayfair.dto.PersonagemDTO;
 import com.Rpg.sistem_mayfair.repository.FamiliaRepository;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
+import com.Rpg.sistem_mayfair.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,7 @@ public class PersonagemService {
 
     private final PersonagemRepository personagemRepository;
     private final FamiliaRepository familiaRepository;
-
+    private final PlayerRepository playerRepository;
     // =========================
     // CREATE PERSONAGEM
     // =========================
@@ -54,6 +56,19 @@ public class PersonagemService {
                 .toList();
     }
 
+    public Personagem atribuirPlayer(Long personagemId, Long playerId) {
+
+        Personagem personagem = personagemRepository.findById(personagemId)
+                .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
+
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new RuntimeException("Player não encontrado"));
+
+        personagem.setPlayer(player);
+
+        return personagemRepository.save(personagem);
+    }
+
     // =========================
     // CONVERTER ENTITY -> DTO
     // =========================
@@ -81,4 +96,5 @@ public class PersonagemService {
 
         return dto;
     }
+
 }

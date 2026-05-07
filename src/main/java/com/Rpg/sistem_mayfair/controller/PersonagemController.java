@@ -8,9 +8,12 @@ import com.Rpg.sistem_mayfair.dto.PersonagemResponseDTO;
 import com.Rpg.sistem_mayfair.repository.FamiliaRepository;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import com.Rpg.sistem_mayfair.service.CloudinaryService;
+import com.Rpg.sistem_mayfair.service.PersonagemService;
 import com.Rpg.sistem_mayfair.service.PrestigioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,32 +23,47 @@ import java.util.List;
 @RestController
 @RequestMapping("/personagens")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class PersonagemController {
 
     private final PersonagemRepository personagemRepository;
     private final FamiliaRepository familiaRepository;
     private final PrestigioService prestigioService;
     private final CloudinaryService cloudinaryService;
+    private final PersonagemService service;
 
-    // ===================== CREATE =====================
+    // ===================== CREATE (ADMIN ONLY) =====================
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PersonagemResponseDTO criarPersonagem(@RequestBody PersonagemDTO dto) {
+    public PersonagemResponseDTO criarPersonagem(
+            @RequestBody PersonagemDTO dto
+    ) {
 
         Personagem personagem = new Personagem();
 
         personagem.setNome(dto.getName());
         personagem.setIdade(dto.getAge());
         personagem.setTitulo(dto.getTitle());
-        personagem.setPrestigio(dto.getPrestige() != null ? dto.getPrestige() : 20);
+
+        personagem.setPrestigio(
+                dto.getPrestige() != null
+                        ? dto.getPrestige()
+                        : 20
+        );
+
         personagem.setDescricao(dto.getDescription());
-        personagem.setImageUrl(extrairUrlLimpa(dto.getImageUrl()));
+
+        personagem.setImageUrl(
+                extrairUrlLimpa(dto.getImageUrl())
+        );
 
         if (dto.getFamilyId() != null) {
+
             Familia familia = familiaRepository.findById(dto.getFamilyId())
                     .orElseThrow(() ->
-                            new RuntimeException("Família não encontrada: " + dto.getFamilyId())
+                            new RuntimeException(
+                                    "Família não encontrada: " + dto.getFamilyId()
+                            )
                     );
 
             personagem.setFamilia(familia);
@@ -53,22 +71,29 @@ public class PersonagemController {
 
         Personagem salvo = personagemRepository.save(personagem);
 
-        return new PersonagemResponseDTO(salvo);
+        return new PersonagemResponseDTO(salvo, true);
     }
 
-    // ===================== LIST (COM SEGURANÇA) =====================
+    // ===================== LIST (PUBLIC) =====================
     @GetMapping
-    public List<PersonagemResponseDTO> listarPersonagens(Authentication auth) {
+    public List<PersonagemResponseDTO> listarPersonagens(
+            Authentication auth
+    ) {
 
         boolean isAdmin = isAdmin(auth);
 
         return personagemRepository.findAll()
                 .stream()
-                .map(p -> new PersonagemResponseDTO(p, isAdmin))
+                .map(personagem ->
+                        new PersonagemResponseDTO(
+                                personagem,
+                                isAdmin
+                        )
+                )
                 .toList();
     }
 
-    // ===================== GET BY ID (COM SEGURANÇA) =====================
+    // ===================== GET BY ID (PUBLIC) =====================
     @GetMapping("/{id}")
     public PersonagemResponseDTO buscarPorId(
             @PathVariable Long id,
@@ -78,12 +103,18 @@ public class PersonagemController {
         boolean isAdmin = isAdmin(auth);
 
         Personagem personagem = personagemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
+                .orElseThrow(() ->
+                        new RuntimeException("Personagem não encontrado")
+                );
 
-        return new PersonagemResponseDTO(personagem, isAdmin);
+        return new PersonagemResponseDTO(
+                personagem,
+                isAdmin
+        );
     }
 
-    // ===================== UPDATE =====================
+    // ===================== UPDATE (ADMIN ONLY) =====================
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public PersonagemResponseDTO atualizarPersonagem(
             @PathVariable Long id,
@@ -91,38 +122,70 @@ public class PersonagemController {
     ) {
 
         Personagem personagem = personagemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
+                .orElseThrow(() ->
+                        new RuntimeException("Personagem não encontrado")
+                );
 
-        if (dto.getName() != null) personagem.setNome(dto.getName());
-        if (dto.getAge() != null) personagem.setIdade(dto.getAge());
-        if (dto.getTitle() != null) personagem.setTitulo(dto.getTitle());
-        if (dto.getDescription() != null) personagem.setDescricao(dto.getDescription());
-        if (dto.getPrestige() != null) personagem.setPrestigio(dto.getPrestige());
+        if (dto.getName() != null) {
+            personagem.setNome(dto.getName());
+        }
+
+        if (dto.getAge() != null) {
+            personagem.setIdade(dto.getAge());
+        }
+
+        if (dto.getTitle() != null) {
+            personagem.setTitulo(dto.getTitle());
+        }
+
+        if (dto.getDescription() != null) {
+            personagem.setDescricao(dto.getDescription());
+        }
+
+        if (dto.getPrestige() != null) {
+            personagem.setPrestigio(dto.getPrestige());
+        }
+
         if (dto.getImageUrl() != null) {
-            personagem.setImageUrl(extrairUrlLimpa(dto.getImageUrl()));
+            personagem.setImageUrl(
+                    extrairUrlLimpa(dto.getImageUrl())
+            );
         }
 
         if (dto.getFamilyId() != null) {
+
             Familia familia = familiaRepository.findById(dto.getFamilyId())
-                    .orElse(null);
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "Família não encontrada"
+                            )
+                    );
+
             personagem.setFamilia(familia);
-        } else {
-            personagem.setFamilia(null);
         }
 
-        return new PersonagemResponseDTO(
-                personagemRepository.save(personagem)
-        );
+        Personagem atualizado = personagemRepository.save(personagem);
+
+        return new PersonagemResponseDTO(atualizado, true);
     }
 
-    // ===================== DELETE =====================
+    // ===================== DELETE (ADMIN ONLY) =====================
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletarPersonagem(@PathVariable Long id) {
+    public void deletarPersonagem(
+            @PathVariable Long id
+    ) {
+
+        if (!personagemRepository.existsById(id)) {
+            throw new RuntimeException("Personagem não encontrado");
+        }
+
         personagemRepository.deleteById(id);
     }
 
-    // ===================== EVENTOS =====================
+    // ===================== EVENTOS (ADMIN ONLY) =====================
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/eventos")
     public PersonagemResponseDTO adicionarEvento(
             @PathVariable Long id,
@@ -135,48 +198,76 @@ public class PersonagemController {
                 dto.getDelta()
         );
 
-        return new PersonagemResponseDTO(atualizado);
+        return new PersonagemResponseDTO(atualizado, true);
     }
 
-    // ===================== PRESTÍGIO =====================
+    // ===================== RECALCULAR (ADMIN ONLY) =====================
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/recalcular-prestigio")
-    public PersonagemResponseDTO recalcular(@PathVariable Long id) {
+    public PersonagemResponseDTO recalcular(
+            @PathVariable Long id
+    ) {
 
-        Personagem personagem = prestigioService.recalcularPrestigio(id);
+        Personagem personagem =
+                prestigioService.recalcularPrestigio(id);
 
-        return new PersonagemResponseDTO(personagem);
+        return new PersonagemResponseDTO(personagem, true);
     }
 
-    // ===================== UPLOAD =====================
+    @PutMapping("/{personagemId}/player/{playerId}")
+    public ResponseEntity<Personagem> atribuirPlayer(
+            @PathVariable Long personagemId,
+            @PathVariable Long playerId
+    ) {
+
+        Personagem personagem = service.atribuirPlayer(personagemId, playerId);
+
+        return ResponseEntity.ok(personagem);
+    }
+
+    // ===================== UPLOAD (ADMIN ONLY) =====================
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/upload")
-    public String uploadImagem(@RequestParam("file") MultipartFile file) {
+    public String uploadImagem(
+            @RequestParam("file") MultipartFile file
+    ) {
+
         return cloudinaryService.uploadFile(file);
     }
 
     // ===================== UTILS =====================
     private boolean isAdmin(Authentication auth) {
-        if (auth == null || auth.getPrincipal() == null) return false;
 
-        try {
-            Object principal = auth.getPrincipal();
-
-            // ajuste aqui conforme seu User real
-            return principal.toString().contains("ADMIN");
-
-        } catch (Exception e) {
+        if (auth == null || !auth.isAuthenticated()) {
             return false;
         }
+
+        return auth.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority()
+                                .equals("ROLE_ADMIN")
+                );
     }
 
     private String extrairUrlLimpa(String urlRaw) {
-        if (urlRaw == null || urlRaw.isBlank()) return null;
+
+        if (urlRaw == null || urlRaw.isBlank()) {
+            return null;
+        }
 
         String url = urlRaw.trim();
 
         if (url.startsWith("{") && url.contains("\"url\"")) {
+
             try {
-                return url.split("\"url\"\\s*:\\s*\"")[1].split("\"")[0];
+
+                return url
+                        .split("\"url\"\\s*:\\s*\"")[1]
+                        .split("\"")[0];
+
             } catch (Exception e) {
+
                 return url;
             }
         }

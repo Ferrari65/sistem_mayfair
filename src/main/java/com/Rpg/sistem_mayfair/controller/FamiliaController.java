@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class FamiliaController {
     // ================= CREATE =================
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public Familia criarFamilia(@RequestBody @Valid FamiliaRequestDTO data) {
 
         Familia familia = new Familia();
@@ -55,6 +57,7 @@ public class FamiliaController {
 
     // ================= UPDATE =================
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Familia atualizarFamilia(
             @PathVariable Long id,
             @RequestBody FamiliaRequestDTO dto
@@ -75,6 +78,7 @@ public class FamiliaController {
 
     // ================= DELETE =================
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deletarFamilia(@PathVariable Long id) {
 
         Familia familia = familiaRepository.findById(id)
