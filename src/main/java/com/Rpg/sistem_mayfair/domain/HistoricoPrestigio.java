@@ -19,7 +19,9 @@ public class HistoricoPrestigio {
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
+
     private Integer pontos;
+
     private OffsetDateTime createdAt;
 
     @ManyToOne
