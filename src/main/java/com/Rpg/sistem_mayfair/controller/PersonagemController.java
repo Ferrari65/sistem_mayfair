@@ -214,25 +214,58 @@ public class PersonagemController {
         return new PersonagemResponseDTO(personagem, true);
     }
 
+    // ===================== PLAYER =====================
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{personagemId}/player/{playerId}")
     public ResponseEntity<Personagem> atribuirPlayer(
             @PathVariable Long personagemId,
             @PathVariable Long playerId
     ) {
 
-        Personagem personagem = service.atribuirPlayer(personagemId, playerId);
+        Personagem personagem = service.atribuirPlayer(
+                personagemId,
+                playerId
+        );
 
         return ResponseEntity.ok(personagem);
     }
 
-    // ===================== UPLOAD (ADMIN ONLY) =====================
+    // ===================== UPLOAD =====================
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/upload")
-    public String uploadImagem(
-            @RequestParam("file") MultipartFile file
+    public ResponseEntity<String> uploadImagem(
+            @RequestParam("file") MultipartFile file,
+            Authentication auth
     ) {
 
-        return cloudinaryService.uploadFile(file);
+        System.out.println("=================================");
+        System.out.println("UPLOAD EXECUTADO");
+        System.out.println("AUTH: " + auth);
+
+        if (auth != null) {
+            System.out.println("AUTHORITIES: " + auth.getAuthorities());
+        }
+
+        System.out.println("=================================");
+
+        String url = cloudinaryService.uploadFile(file);
+
+        return ResponseEntity.ok(url);
+    }
+
+    // ===================== DEBUG AUTH =====================
+    @GetMapping("/debug-auth")
+    public ResponseEntity<?> debugAuth(
+            Authentication auth
+    ) {
+
+        if (auth == null) {
+            return ResponseEntity.ok("AUTH NULL");
+        }
+
+        return ResponseEntity.ok(
+                auth.getAuthorities()
+        );
     }
 
     // ===================== UTILS =====================

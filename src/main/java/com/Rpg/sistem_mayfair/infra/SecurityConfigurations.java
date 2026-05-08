@@ -42,7 +42,9 @@ public class SecurityConfigurations {
 
                 .authorizeHttpRequests(auth -> auth
 
-
+                        // =========================
+                        // ROTAS PÚBLICAS
+                        // =========================
                         .requestMatchers(
                                 "/admin/login",
                                 "/v3/api-docs/**",
@@ -52,6 +54,10 @@ public class SecurityConfigurations {
 
                         .requestMatchers("/personagens/debug-auth")
                         .permitAll()
+
+                        // =========================
+                        // GETS PÚBLICOS
+                        // =========================
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/personagens/**",
@@ -60,10 +66,19 @@ public class SecurityConfigurations {
                                 "/historico/**",
                                 "/players/**",
                                 "/estabelecimentos/**"
-
                         ).permitAll()
 
-                        // TODO RESTO PRECISA TOKEN
+                        // =========================
+                        // UPLOAD EXIGE ADMIN
+                        // =========================
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/personagens/upload"
+                        ).hasRole("ADMIN")
+
+                        // =========================
+                        // TODO RESTANTE EXIGE JWT
+                        // =========================
                         .anyRequest().authenticated()
                 )
 
