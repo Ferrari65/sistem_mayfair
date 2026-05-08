@@ -1,5 +1,6 @@
 package com.Rpg.sistem_mayfair.domain.estabelecimento;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class FotoEstabelecimento {
      */
     private String imageUrl;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "estabelecimento_id")
     private Estabelecimento estabelecimento;
