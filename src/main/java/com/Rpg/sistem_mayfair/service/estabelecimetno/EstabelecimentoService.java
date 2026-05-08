@@ -26,28 +26,15 @@ public class EstabelecimentoService {
      * CRIAR ESTABELECIMENTO
      * =========================
      */
-
     public Estabelecimento criar(EstabelecimentoDTO dto) {
-
-        /*
-         * BUSCA O PROPRIETÁRIO
-         */
 
         Personagem proprietario =
                 personagemRepository.findById(dto.getProprietarioId())
                         .orElseThrow(() ->
                                 new RuntimeException("Proprietário não encontrado"));
 
-        /*
-         * BUSCA FUNCIONÁRIOS
-         */
-
         List<Personagem> funcionarios =
                 personagemRepository.findAllById(dto.getFuncionariosIds());
-
-        /*
-         * MONTA A ENTIDADE
-         */
 
         Estabelecimento estabelecimento = Estabelecimento.builder()
                 .nomeLocal(dto.getNomeLocal())
@@ -60,19 +47,14 @@ public class EstabelecimentoService {
                 .funcionarios(funcionarios)
                 .build();
 
-        /*
-         * SALVA
-         */
-
         return repository.save(estabelecimento);
     }
 
     /*
      * =========================
-     * LISTAR TODOS
+     * LISTAR TODOS (CORRIGIDO)
      * =========================
      */
-
     public List<Estabelecimento> listarTodos() {
         return repository.findAll();
     }
@@ -82,9 +64,7 @@ public class EstabelecimentoService {
      * BUSCAR POR ID
      * =========================
      */
-
     public Estabelecimento buscarPorId(Long id) {
-
         return repository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Estabelecimento não encontrado"));
@@ -95,13 +75,9 @@ public class EstabelecimentoService {
      * ALTERAR MORAL
      * =========================
      */
-
     public Estabelecimento alterarMoral(Long id, int quantidade) {
-
         Estabelecimento estabelecimento = buscarPorId(id);
-
         estabelecimento.alterarMoral(quantidade);
-
         return repository.save(estabelecimento);
     }
 
@@ -110,13 +86,9 @@ public class EstabelecimentoService {
      * ALTERAR DINHEIRO
      * =========================
      */
-
     public Estabelecimento alterarDinheiro(Long id, double valor) {
-
         Estabelecimento estabelecimento = buscarPorId(id);
-
         estabelecimento.alterarDinheiro(valor);
-
         return repository.save(estabelecimento);
     }
 
@@ -125,49 +97,32 @@ public class EstabelecimentoService {
      * DELETAR
      * =========================
      */
-
     public void deletar(Long id) {
-
         Estabelecimento estabelecimento = buscarPorId(id);
-
         repository.delete(estabelecimento);
     }
 
-    public FotoEstabelecimento adicionarFoto(
-            Long estabelecimentoId,
-            MultipartFile file
-    ) {
-
-        /*
-         * BUSCA ESTABELECIMENTO
-         */
+    /*
+     * =========================
+     * UPLOAD FOTO (SOBRESCREVE)
+     * =========================
+     */
+    public FotoEstabelecimento adicionarFoto(Long estabelecimentoId, MultipartFile file) {
 
         Estabelecimento estabelecimento = buscarPorId(estabelecimentoId);
 
-        /*
-         * FAZ UPLOAD NO CLOUDINARY
-         */
-
         String imageUrl = cloudinaryService.uploadFile(file);
 
-        /*
-         * CRIA FOTO
-         */
+        FotoEstabelecimento foto = estabelecimento.getFoto();
 
-        FotoEstabelecimento foto = FotoEstabelecimento.builder()
-                .imageUrl(imageUrl)
-                .estabelecimento(estabelecimento)
-                .build();
+        if (foto == null) {
+            foto = new FotoEstabelecimento();
+            foto.setEstabelecimento(estabelecimento);
+        }
 
-        /*
-         * ADICIONA NA LISTA
-         */
+        foto.setImageUrl(imageUrl);
 
-        estabelecimento.getFotos().add(foto);
-
-        /*
-         * SALVA
-         */
+        estabelecimento.setFoto(foto);
 
         repository.save(estabelecimento);
 

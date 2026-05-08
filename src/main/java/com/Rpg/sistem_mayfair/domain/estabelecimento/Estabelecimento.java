@@ -27,7 +27,6 @@ public class Estabelecimento {
     /*
      * INFORMAÇÕES BÁSICAS
      */
-
     @Column(nullable = false)
     private String nomeLocal;
 
@@ -37,31 +36,26 @@ public class Estabelecimento {
     /*
      * MORAL
      */
-
     @Min(0)
     @Max(100)
     @Column(nullable = false)
     private Integer moral = 50;
 
     /*
-     * DINHEIRO DO ESTABELECIMENTO
+     * DINHEIRO
      */
-
     @Column(nullable = false)
     private Double dinheiro = 0.0;
 
     /*
      * HORÁRIOS
      */
-
     private LocalTime horarioAbertura;
-
     private LocalTime horarioFechamento;
 
     /*
      * PROPRIETÁRIO
      */
-
     @ManyToOne
     @JoinColumn(name = "proprietario_id")
     @JsonIgnoreProperties({
@@ -74,7 +68,6 @@ public class Estabelecimento {
     /*
      * FUNCIONÁRIOS
      */
-
     @ManyToMany
     @JoinTable(
             name = "estabelecimento_funcionarios",
@@ -89,20 +82,14 @@ public class Estabelecimento {
     private List<Personagem> funcionarios = new ArrayList<>();
 
     /*
-     * FOTOS
+     * FOTO PRINCIPAL (1:1)
      */
-
-    @OneToMany(
-            mappedBy = "estabelecimento",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<FotoEstabelecimento> fotos = new ArrayList<>();
+    @OneToOne(mappedBy = "estabelecimento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private FotoEstabelecimento foto;
 
     /*
      * VISITAS
      */
-
     @OneToMany(
             mappedBy = "estabelecimento",
             cascade = CascadeType.ALL,
@@ -112,14 +99,11 @@ public class Estabelecimento {
 
     /*
      * =========================
-     * MÉTODOS DE MORAL
+     * MORAL
      * =========================
      */
-
     public void alterarMoral(int quantidade) {
-
         int novoValor = this.moral + quantidade;
-
         this.moral = Math.max(0, Math.min(100, novoValor));
     }
 
@@ -133,14 +117,11 @@ public class Estabelecimento {
 
     /*
      * =========================
-     * MÉTODOS DE DINHEIRO
+     * DINHEIRO
      * =========================
      */
-
     public void alterarDinheiro(double valor) {
-
         double novoValor = this.dinheiro + valor;
-
         this.dinheiro = Math.max(0, novoValor);
     }
 
