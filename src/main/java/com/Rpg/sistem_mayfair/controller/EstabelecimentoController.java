@@ -7,7 +7,6 @@ import com.Rpg.sistem_mayfair.service.estabelecimetno.EstabelecimentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,21 +21,17 @@ public class EstabelecimentoController {
     private final EstabelecimentoService service;
 
     /*
-     * =========================
      * CRIAR
-     * =========================
+     * Retorna 201 Created em vez de 200 OK
      */
     @PostMapping
     public ResponseEntity<Estabelecimento> criar(@RequestBody @Valid EstabelecimentoDTO dto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(service.criar(dto));
+        Estabelecimento novoEstabelecimento = service.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoEstabelecimento);
     }
 
     /*
-     * =========================
      * LISTAR TODOS
-     * =========================
      */
     @GetMapping
     public ResponseEntity<List<Estabelecimento>> listarTodos() {
@@ -44,9 +39,7 @@ public class EstabelecimentoController {
     }
 
     /*
-     * =========================
      * BUSCAR POR ID
-     * =========================
      */
     @GetMapping("/{id}")
     public ResponseEntity<Estabelecimento> buscarPorId(@PathVariable Long id) {
@@ -54,9 +47,7 @@ public class EstabelecimentoController {
     }
 
     /*
-     * =========================
      * ALTERAR MORAL
-     * =========================
      */
     @PatchMapping("/{id}/moral")
     public ResponseEntity<Estabelecimento> alterarMoral(
@@ -67,9 +58,7 @@ public class EstabelecimentoController {
     }
 
     /*
-     * =========================
      * ALTERAR DINHEIRO
-     * =========================
      */
     @PatchMapping("/{id}/dinheiro")
     public ResponseEntity<Estabelecimento> alterarDinheiro(
@@ -80,9 +69,8 @@ public class EstabelecimentoController {
     }
 
     /*
-     * =========================
      * DELETAR
-     * =========================
+     * Retorna 204 No Content após sucesso
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
@@ -91,23 +79,13 @@ public class EstabelecimentoController {
     }
 
     /*
-     * =========================
-     * UPLOAD DE FOTO (CORRIGIDO)
-     * =========================
-     *
-     * 🔥 IMPORTANTE:
-     * precisa do consumes = MULTIPART_FORM_DATA_VALUE
+     * ADICIONAR FOTO
      */
-    @PostMapping(
-            value = "/{id}/fotos",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping("/{id}/fotos")
     public ResponseEntity<FotoEstabelecimento> adicionarFoto(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file
     ) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(service.adicionarFoto(id, file));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.adicionarFoto(id, file));
     }
 }

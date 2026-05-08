@@ -22,11 +22,8 @@ public class FotoEstabelecimento {
      */
     private String imageUrl;
 
-    /*
-     * RELAÇÃO 1:1 REAL (SOBRESCRITA GARANTIDA)
-     */
     @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "estabelecimento_id", unique = true)
+    @ManyToOne
+    @JoinColumn(name = "estabelecimento_id")
     private Estabelecimento estabelecimento;
 }

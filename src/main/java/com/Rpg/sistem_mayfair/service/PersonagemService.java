@@ -19,6 +19,7 @@ public class PersonagemService {
     private final PersonagemRepository personagemRepository;
     private final FamiliaRepository familiaRepository;
     private final PlayerRepository playerRepository;
+
     // =========================
     // CREATE PERSONAGEM
     // =========================
@@ -29,24 +30,39 @@ public class PersonagemService {
         personagem.setNome(dto.getName());
         personagem.setIdade(dto.getAge());
         personagem.setTitulo(dto.getTitle());
+
         personagem.setPrestigio(
-                dto.getPrestige() != null ? dto.getPrestige() : 20
+                dto.getPrestige() != null
+                        ? dto.getPrestige()
+                        : 20
         );
+
         personagem.setDescricao(dto.getDescription());
         personagem.setImageUrl(dto.getImageUrl());
 
-        if (dto.getFamilyId() != null) {
-            Familia familia = familiaRepository.findById(dto.getFamilyId())
-                    .orElseThrow(() -> new RuntimeException("Família não encontrada"));
+        // =========================
+        // FAMILY
+        // =========================
+        if (dto.getFamilyId() != null && dto.getFamilyId() > 0) {
+
+            Familia familia = familiaRepository
+                    .findById(dto.getFamilyId())
+                    .orElseThrow(() ->
+                            new RuntimeException("Família não encontrada")
+                    );
 
             personagem.setFamilia(familia);
+
+        } else {
+
+            personagem.setFamilia(null);
         }
 
         return personagemRepository.save(personagem);
     }
 
     // =========================
-    // LISTAR PERSONAGENS (SEGURANÇA)
+    // LISTAR PERSONAGENS
     // =========================
     public List<PersonagemDTO> listar(boolean isAdmin) {
 
@@ -56,13 +72,25 @@ public class PersonagemService {
                 .toList();
     }
 
-    public Personagem atribuirPlayer(Long personagemId, Long playerId) {
+    // =========================
+    // ATRIBUIR PLAYER
+    // =========================
+    public Personagem atribuirPlayer(
+            Long personagemId,
+            Long playerId
+    ) {
 
-        Personagem personagem = personagemRepository.findById(personagemId)
-                .orElseThrow(() -> new RuntimeException("Personagem não encontrado"));
+        Personagem personagem = personagemRepository
+                .findById(personagemId)
+                .orElseThrow(() ->
+                        new RuntimeException("Personagem não encontrado")
+                );
 
-        Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new RuntimeException("Player não encontrado"));
+        Player player = playerRepository
+                .findById(playerId)
+                .orElseThrow(() ->
+                        new RuntimeException("Player não encontrado")
+                );
 
         personagem.setPlayer(player);
 
@@ -70,9 +98,12 @@ public class PersonagemService {
     }
 
     // =========================
-    // CONVERTER ENTITY -> DTO
+    // ENTITY -> DTO
     // =========================
-    private PersonagemDTO toDTO(Personagem p, boolean isAdmin) {
+    private PersonagemDTO toDTO(
+            Personagem p,
+            boolean isAdmin
+    ) {
 
         PersonagemDTO dto = new PersonagemDTO();
 
@@ -87,7 +118,6 @@ public class PersonagemService {
             dto.setFamilyId(p.getFamilia().getId());
         }
 
-        // 🔐 REGRA DE SEGURANÇA (SHAPE)
         if (isAdmin) {
             dto.setShape(p.getShape());
         } else {
@@ -96,5 +126,4 @@ public class PersonagemService {
 
         return dto;
     }
-
 }

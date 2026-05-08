@@ -57,7 +57,10 @@ public class PersonagemController {
                 extrairUrlLimpa(dto.getImageUrl())
         );
 
-        if (dto.getFamilyId() != null) {
+        // =========================
+        // FAMILY
+        // =========================
+        if (dto.getFamilyId() != null && dto.getFamilyId() > 0) {
 
             Familia familia = familiaRepository.findById(dto.getFamilyId())
                     .orElseThrow(() ->
@@ -67,6 +70,10 @@ public class PersonagemController {
                     );
 
             personagem.setFamilia(familia);
+
+        } else {
+
+            personagem.setFamilia(null);
         }
 
         Personagem salvo = personagemRepository.save(personagem);
@@ -152,7 +159,10 @@ public class PersonagemController {
             );
         }
 
-        if (dto.getFamilyId() != null) {
+        // =========================
+        // FAMILY
+        // =========================
+        if (dto.getFamilyId() != null && dto.getFamilyId() > 0) {
 
             Familia familia = familiaRepository.findById(dto.getFamilyId())
                     .orElseThrow(() ->
@@ -162,6 +172,10 @@ public class PersonagemController {
                     );
 
             personagem.setFamilia(familia);
+
+        } else {
+
+            personagem.setFamilia(null);
         }
 
         Personagem atualizado = personagemRepository.save(personagem);
