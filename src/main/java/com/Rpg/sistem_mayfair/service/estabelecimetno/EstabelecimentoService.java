@@ -9,9 +9,12 @@ import com.Rpg.sistem_mayfair.repository.estabelecimento.EstabelecimentoReposito
 import com.Rpg.sistem_mayfair.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +26,48 @@ public class EstabelecimentoService {
 
     /*
      * =========================
+     * CONVERSOR (ENTITY -> DTO)
+     * =========================
+     * Este método garante que o Front-end receba a lista 'fotos' corretamente.
+     */
+    private EstabelecimentoDTO converterParaDTO(Estabelecimento entidade) {
+        EstabelecimentoDTO dto = new EstabelecimentoDTO();
+        dto.setNomeLocal(entidade.getNomeLocal());
+        dto.setDescricao(entidade.getDescricao());
+        dto.setMoral(entidade.getMoral());
+        dto.setDinheiro(entidade.getDinheiro());
+        dto.setHorarioAbertura(entidade.getHorarioAbertura());
+        dto.setHorarioFechamento(entidade.getHorarioFechamento());
+
+        // Mapeamento de IDs
+        dto.setProprietarioId(entidade.getProprietario() != null ? entidade.getProprietario().getId_personagens() : null);
+        dto.setFuncionariosIds(entidade.getFuncionarios().stream()
+                .map(Personagem::getId_personagens)
+                .collect(Collectors.toList()));
+
+        // Normalização das Fotos para o React
+        List<String> listaFotos = new ArrayList<>();
+        if (entidade.getFotos() != null && entidade.getFotos().getImageUrl() != null) {
+            listaFotos.add(entidade.getFotos().getImageUrl());
+        }
+        dto.setFotos(listaFotos);
+
+        return dto;
+    }
+
+    /*
+     * =========================
      * CRIAR ESTABELECIMENTO
      * =========================
      */
-    public Estabelecimento criar(EstabelecimentoDTO dto) {
+    @Transactional
+    public EstabelecimentoDTO criar(EstabelecimentoDTO dto) {
+        Personagem proprietario = personagemRepository.findById(dto.getProprietarioId())
+                .orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
 
-        Personagem proprietario =
-                personagemRepository.findById(dto.getProprietarioId())
-                        .orElseThrow(() ->
-                                new RuntimeException("Proprietário não encontrado"));
-
-        List<Personagem> funcionarios =
-                personagemRepository.findAllById(dto.getFuncionariosIds());
+        List<Personagem> funcionarios = (dto.getFuncionariosIds() != null)
+                ? personagemRepository.findAllById(dto.getFuncionariosIds())
+                : new ArrayList<>();
 
         Estabelecimento estabelecimento = Estabelecimento.builder()
                 .nomeLocal(dto.getNomeLocal())
@@ -47,16 +80,18 @@ public class EstabelecimentoService {
                 .funcionarios(funcionarios)
                 .build();
 
-        return repository.save(estabelecimento);
+        return converterParaDTO(repository.save(estabelecimento));
     }
 
     /*
      * =========================
-     * LISTAR TODOS (CORRIGIDO)
+     * LISTAR TODOS
      * =========================
      */
-    public List<Estabelecimento> listarTodos() {
-        return repository.findAll();
+    public List<EstabelecimentoDTO> listarTodos() {
+        return repository.findAll().stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
     }
 
     /*
@@ -64,32 +99,35 @@ public class EstabelecimentoService {
      * BUSCAR POR ID
      * =========================
      */
-    public Estabelecimento buscarPorId(Long id) {
+    public EstabelecimentoDTO buscarPorIdDTO(Long id) {
+        Estabelecimento ent = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+        return converterParaDTO(ent);
+    }
+
+    // Método interno para operações que precisam da entidade pura
+    private Estabelecimento buscarEntidade(Long id) {
         return repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Estabelecimento não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
     }
 
     /*
      * =========================
-     * ALTERAR MORAL
+     * ALTERAR MORAL / DINHEIRO
      * =========================
      */
-    public Estabelecimento alterarMoral(Long id, int quantidade) {
-        Estabelecimento estabelecimento = buscarPorId(id);
+    @Transactional
+    public EstabelecimentoDTO alterarMoral(Long id, int quantidade) {
+        Estabelecimento estabelecimento = buscarEntidade(id);
         estabelecimento.alterarMoral(quantidade);
-        return repository.save(estabelecimento);
+        return converterParaDTO(repository.save(estabelecimento));
     }
 
-    /*
-     * =========================
-     * ALTERAR DINHEIRO
-     * =========================
-     */
-    public Estabelecimento alterarDinheiro(Long id, double valor) {
-        Estabelecimento estabelecimento = buscarPorId(id);
+    @Transactional
+    public EstabelecimentoDTO alterarDinheiro(Long id, double valor) {
+        Estabelecimento estabelecimento = buscarEntidade(id);
         estabelecimento.alterarDinheiro(valor);
-        return repository.save(estabelecimento);
+        return converterParaDTO(repository.save(estabelecimento));
     }
 
     /*
@@ -97,8 +135,9 @@ public class EstabelecimentoService {
      * DELETAR
      * =========================
      */
+    @Transactional
     public void deletar(Long id) {
-        Estabelecimento estabelecimento = buscarPorId(id);
+        Estabelecimento estabelecimento = buscarEntidade(id);
         repository.delete(estabelecimento);
     }
 
@@ -107,8 +146,9 @@ public class EstabelecimentoService {
      * UPLOAD FOTO (SOBRESCREVE)
      * =========================
      */
-    public FotoEstabelecimento adicionarFoto(Long estabelecimentoId, MultipartFile file) {
-        Estabelecimento estabelecimento = buscarPorId(estabelecimentoId);
+    @Transactional
+    public EstabelecimentoDTO adicionarFoto(Long estabelecimentoId, MultipartFile file) {
+        Estabelecimento estabelecimento = buscarEntidade(estabelecimentoId);
 
         String imageUrl = cloudinaryService.uploadFile(file);
 
@@ -121,9 +161,8 @@ public class EstabelecimentoService {
         }
 
         foto.setImageUrl(imageUrl);
+        repository.save(estabelecimento);
 
-        repository.save(estabelecimento); // cascade salva/atualiza a foto junto
-
-        return foto;
+        return converterParaDTO(estabelecimento);
     }
 }

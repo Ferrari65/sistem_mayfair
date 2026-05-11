@@ -1,7 +1,5 @@
 package com.Rpg.sistem_mayfair.controller;
 
-import com.Rpg.sistem_mayfair.domain.estabelecimento.Estabelecimento;
-import com.Rpg.sistem_mayfair.domain.estabelecimento.FotoEstabelecimento;
 import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
 import com.Rpg.sistem_mayfair.service.estabelecimetno.EstabelecimentoService;
 import jakarta.validation.Valid;
@@ -22,19 +20,20 @@ public class EstabelecimentoController {
 
     /*
      * CRIAR
-     * Retorna 201 Created em vez de 200 OK
+     * Retorna EstabelecimentoDTO (já com a estrutura de fotos correta)
      */
     @PostMapping
-    public ResponseEntity<Estabelecimento> criar(@RequestBody @Valid EstabelecimentoDTO dto) {
-        Estabelecimento novoEstabelecimento = service.criar(dto);
+    public ResponseEntity<EstabelecimentoDTO> criar(@RequestBody @Valid EstabelecimentoDTO dto) {
+        EstabelecimentoDTO novoEstabelecimento = service.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoEstabelecimento);
     }
 
     /*
      * LISTAR TODOS
+     * Retorna List<EstabelecimentoDTO>
      */
     @GetMapping
-    public ResponseEntity<List<Estabelecimento>> listarTodos() {
+    public ResponseEntity<List<EstabelecimentoDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
     }
 
@@ -42,15 +41,15 @@ public class EstabelecimentoController {
      * BUSCAR POR ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Estabelecimento> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+    public ResponseEntity<EstabelecimentoDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPorIdDTO(id));
     }
 
     /*
      * ALTERAR MORAL
      */
     @PatchMapping("/{id}/moral")
-    public ResponseEntity<Estabelecimento> alterarMoral(
+    public ResponseEntity<EstabelecimentoDTO> alterarMoral(
             @PathVariable Long id,
             @RequestParam int quantidade
     ) {
@@ -61,7 +60,7 @@ public class EstabelecimentoController {
      * ALTERAR DINHEIRO
      */
     @PatchMapping("/{id}/dinheiro")
-    public ResponseEntity<Estabelecimento> alterarDinheiro(
+    public ResponseEntity<EstabelecimentoDTO> alterarDinheiro(
             @PathVariable Long id,
             @RequestParam double valor
     ) {
@@ -70,7 +69,6 @@ public class EstabelecimentoController {
 
     /*
      * DELETAR
-     * Retorna 204 No Content após sucesso
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
@@ -80,9 +78,10 @@ public class EstabelecimentoController {
 
     /*
      * ADICIONAR FOTO
+     * Agora retorna o DTO completo, assim o Front já atualiza a imagem na hora
      */
     @PostMapping("/{id}/fotos")
-    public ResponseEntity<FotoEstabelecimento> adicionarFoto(
+    public ResponseEntity<EstabelecimentoDTO> adicionarFoto(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file
     ) {
