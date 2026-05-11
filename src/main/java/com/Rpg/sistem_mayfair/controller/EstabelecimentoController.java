@@ -1,7 +1,5 @@
 package com.Rpg.sistem_mayfair.controller;
 
-import com.Rpg.sistem_mayfair.domain.estabelecimento.Estabelecimento;
-import com.Rpg.sistem_mayfair.domain.estabelecimento.FotoEstabelecimento;
 import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
 import com.Rpg.sistem_mayfair.service.estabelecimetno.EstabelecimentoService;
 import jakarta.validation.Valid;
@@ -21,36 +19,47 @@ public class EstabelecimentoController {
     private final EstabelecimentoService service;
 
     /*
+     * =========================
      * CRIAR
-     * Retorna 201 Created em vez de 200 OK
+     * =========================
      */
     @PostMapping
-    public ResponseEntity<Estabelecimento> criar(@RequestBody @Valid EstabelecimentoDTO dto) {
-        Estabelecimento novoEstabelecimento = service.criar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoEstabelecimento);
+    public ResponseEntity<EstabelecimentoDTO> criar(
+            @RequestBody @Valid EstabelecimentoDTO dto
+    ) {
+        EstabelecimentoDTO novo = service.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
     /*
+     * =========================
      * LISTAR TODOS
+     * =========================
      */
     @GetMapping
-    public ResponseEntity<List<Estabelecimento>> listarTodos() {
+    public ResponseEntity<List<EstabelecimentoDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
     }
 
     /*
+     * =========================
      * BUSCAR POR ID
+     * =========================
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Estabelecimento> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<EstabelecimentoDTO> buscarPorId(
+            @PathVariable Long id
+    ) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     /*
+     * =========================
      * ALTERAR MORAL
+     * =========================
      */
     @PatchMapping("/{id}/moral")
-    public ResponseEntity<Estabelecimento> alterarMoral(
+    public ResponseEntity<EstabelecimentoDTO> alterarMoral(
             @PathVariable Long id,
             @RequestParam int quantidade
     ) {
@@ -58,10 +67,12 @@ public class EstabelecimentoController {
     }
 
     /*
+     * =========================
      * ALTERAR DINHEIRO
+     * =========================
      */
     @PatchMapping("/{id}/dinheiro")
-    public ResponseEntity<Estabelecimento> alterarDinheiro(
+    public ResponseEntity<EstabelecimentoDTO> alterarDinheiro(
             @PathVariable Long id,
             @RequestParam double valor
     ) {
@@ -69,8 +80,9 @@ public class EstabelecimentoController {
     }
 
     /*
+     * =========================
      * DELETAR
-     * Retorna 204 No Content após sucesso
+     * =========================
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
@@ -79,13 +91,16 @@ public class EstabelecimentoController {
     }
 
     /*
+     * =========================
      * ADICIONAR FOTO
+     * =========================
      */
     @PostMapping("/{id}/fotos")
-    public ResponseEntity<FotoEstabelecimento> adicionarFoto(
+    public ResponseEntity<EstabelecimentoDTO> adicionarFoto(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.adicionarFoto(id, file));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.adicionarFoto(id, file));
     }
 }

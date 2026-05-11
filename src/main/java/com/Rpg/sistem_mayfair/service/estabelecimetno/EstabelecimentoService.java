@@ -4,6 +4,7 @@ import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.domain.estabelecimento.Estabelecimento;
 import com.Rpg.sistem_mayfair.domain.estabelecimento.FotoEstabelecimento;
 import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
+import com.Rpg.sistem_mayfair.dto.estabelecimento.FotoEstabelecimentoDTO;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import com.Rpg.sistem_mayfair.repository.estabelecimento.EstabelecimentoRepository;
 import com.Rpg.sistem_mayfair.service.CloudinaryService;
@@ -23,15 +24,17 @@ public class EstabelecimentoService {
 
     /*
      * =========================
-     * CRIAR ESTABELECIMENTO
+     * CREATE
      * =========================
      */
-    public Estabelecimento criar(EstabelecimentoDTO dto) {
+    public EstabelecimentoDTO criar(EstabelecimentoDTO dto) {
 
-        Personagem proprietario =
-                personagemRepository.findById(dto.getProprietarioId())
-                        .orElseThrow(() ->
-                                new RuntimeException("Proprietário não encontrado"));
+        Personagem proprietario = null;
+
+        if (dto.getProprietarioId() != null) {
+            proprietario = personagemRepository.findById(dto.getProprietarioId())
+                    .orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
+        }
 
         List<Personagem> funcionarios =
                 personagemRepository.findAllById(dto.getFuncionariosIds());
@@ -47,83 +50,131 @@ public class EstabelecimentoService {
                 .funcionarios(funcionarios)
                 .build();
 
-        return repository.save(estabelecimento);
+        return toDTO(repository.save(estabelecimento));
     }
 
     /*
      * =========================
-     * LISTAR TODOS (CORRIGIDO)
+     * LIST ALL (FIXED DTO)
      * =========================
      */
-    public List<Estabelecimento> listarTodos() {
-        return repository.findAll();
+    public List<EstabelecimentoDTO> listarTodos() {
+        return repository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     /*
      * =========================
-     * BUSCAR POR ID
+     * FIND BY ID (FIXED DTO)
      * =========================
      */
-    public Estabelecimento buscarPorId(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Estabelecimento não encontrado"));
+    public EstabelecimentoDTO buscarPorId(Long id) {
+        Estabelecimento est = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+
+        return toDTO(est);
     }
 
     /*
      * =========================
-     * ALTERAR MORAL
+     * MORAL
      * =========================
      */
-    public Estabelecimento alterarMoral(Long id, int quantidade) {
-        Estabelecimento estabelecimento = buscarPorId(id);
-        estabelecimento.alterarMoral(quantidade);
-        return repository.save(estabelecimento);
+    public EstabelecimentoDTO alterarMoral(Long id, int quantidade) {
+        Estabelecimento est = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+
+        est.alterarMoral(quantidade);
+
+        return toDTO(repository.save(est));
     }
 
     /*
      * =========================
-     * ALTERAR DINHEIRO
+     * DINHEIRO
      * =========================
      */
-    public Estabelecimento alterarDinheiro(Long id, double valor) {
-        Estabelecimento estabelecimento = buscarPorId(id);
-        estabelecimento.alterarDinheiro(valor);
-        return repository.save(estabelecimento);
+    public EstabelecimentoDTO alterarDinheiro(Long id, double valor) {
+        Estabelecimento est = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+
+        est.alterarDinheiro(valor);
+
+        return toDTO(repository.save(est));
     }
 
     /*
      * =========================
-     * DELETAR
+     * DELETE
      * =========================
      */
     public void deletar(Long id) {
-        Estabelecimento estabelecimento = buscarPorId(id);
-        repository.delete(estabelecimento);
+        Estabelecimento est = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+
+        repository.delete(est);
     }
 
     /*
      * =========================
-     * UPLOAD FOTO (SOBRESCREVE)
+     * FOTO UPLOAD
      * =========================
      */
-    public FotoEstabelecimento adicionarFoto(Long estabelecimentoId, MultipartFile file) {
-        Estabelecimento estabelecimento = buscarPorId(estabelecimentoId);
+    public EstabelecimentoDTO adicionarFoto(Long id, MultipartFile file) {
+
+        Estabelecimento est = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
         String imageUrl = cloudinaryService.uploadFile(file);
 
-        FotoEstabelecimento foto = estabelecimento.getFoto();
+        FotoEstabelecimento foto = est.getFoto();
 
         if (foto == null) {
             foto = new FotoEstabelecimento();
-            foto.setEstabelecimento(estabelecimento);
-            estabelecimento.setFoto(foto);
+            foto.setEstabelecimento(est);
+            est.setFoto(foto);
         }
 
         foto.setImageUrl(imageUrl);
 
-        repository.save(estabelecimento); // cascade salva/atualiza a foto junto
+        return toDTO(repository.save(est));
+    }
 
-        return foto;
+    /*
+     * =========================
+     * MAPPER ENTITY → DTO
+     * =========================
+     */
+    private EstabelecimentoDTO toDTO(Estabelecimento est) {
+
+        EstabelecimentoDTO dto = new EstabelecimentoDTO();
+
+        dto.setNomeLocal(est.getNomeLocal());
+        dto.setDescricao(est.getDescricao());
+        dto.setMoral(est.getMoral());
+        dto.setDinheiro(est.getDinheiro());
+        dto.setHorarioAbertura(est.getHorarioAbertura());
+        dto.setHorarioFechamento(est.getHorarioFechamento());
+
+        dto.setProprietarioId(
+                est.getProprietario() != null ? est.getProprietario().getId_personagens() : null
+        );
+
+        dto.setFuncionariosIds(
+                est.getFuncionarios().stream()
+                        .map(Personagem::getId_personagens)
+                        .toList()
+        );
+
+        // 🔥 FOTO FIX AQUI
+        if (est.getFoto() != null) {
+            FotoEstabelecimentoDTO fotoDTO = new FotoEstabelecimentoDTO();
+            fotoDTO.setImageUrl(est.getFoto().getImageUrl());
+            dto.setFoto(fotoDTO);
+        }
+
+        return dto;
     }
 }
