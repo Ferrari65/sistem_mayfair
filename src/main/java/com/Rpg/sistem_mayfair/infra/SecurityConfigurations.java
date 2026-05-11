@@ -71,10 +71,23 @@ public class SecurityConfigurations {
                         // =========================
                         // UPLOAD EXIGE ADMIN
                         // =========================
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/personagens/upload"
-                        ).hasRole("ADMIN")
+                                // =========================
+// ROTAS ADMIN PERSONAGEM
+// =========================
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/personagens/**"
+                                ).hasRole("ADMIN")
+
+                                .requestMatchers(
+                                        HttpMethod.PUT,
+                                        "/personagens/**"
+                                ).hasRole("ADMIN")
+
+                                .requestMatchers(
+                                        HttpMethod.DELETE,
+                                        "/personagens/**"
+                                ).hasRole("ADMIN")
 
                         // =========================
                         // TODO RESTANTE EXIGE JWT
