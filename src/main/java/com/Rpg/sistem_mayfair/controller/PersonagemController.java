@@ -31,7 +31,9 @@ public class PersonagemController {
     private final CloudinaryService cloudinaryService;
     private final PersonagemService service;
 
-    // ===================== CREATE (ADMIN ONLY) =====================
+    // =====================
+    // CREATE (ADMIN ONLY)
+    // =====================
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -60,12 +62,15 @@ public class PersonagemController {
         // =========================
         // FAMILY
         // =========================
-        if (dto.getFamilyId() != null && dto.getFamilyId() > 0) {
+        if (dto.getFamilyId() != null
+                && dto.getFamilyId() > 0) {
 
-            Familia familia = familiaRepository.findById(dto.getFamilyId())
+            Familia familia = familiaRepository
+                    .findById(dto.getFamilyId())
                     .orElseThrow(() ->
                             new RuntimeException(
-                                    "Família não encontrada: " + dto.getFamilyId()
+                                    "Família não encontrada: "
+                                            + dto.getFamilyId()
                             )
                     );
 
@@ -76,12 +81,18 @@ public class PersonagemController {
             personagem.setFamilia(null);
         }
 
-        Personagem salvo = personagemRepository.save(personagem);
+        Personagem salvo =
+                personagemRepository.save(personagem);
 
-        return new PersonagemResponseDTO(salvo, true);
+        return new PersonagemResponseDTO(
+                salvo,
+                true
+        );
     }
 
-    // ===================== LIST (PUBLIC) =====================
+    // =====================
+    // LIST (PUBLIC)
+    // =====================
     @GetMapping
     public List<PersonagemResponseDTO> listarPersonagens(
             Authentication auth
@@ -100,7 +111,9 @@ public class PersonagemController {
                 .toList();
     }
 
-    // ===================== GET BY ID (PUBLIC) =====================
+    // =====================
+    // GET BY ID (PUBLIC)
+    // =====================
     @GetMapping("/{id}")
     public PersonagemResponseDTO buscarPorId(
             @PathVariable Long id,
@@ -109,10 +122,13 @@ public class PersonagemController {
 
         boolean isAdmin = isAdmin(auth);
 
-        Personagem personagem = personagemRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Personagem não encontrado")
-                );
+        Personagem personagem =
+                personagemRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Personagem não encontrado"
+                                )
+                        );
 
         return new PersonagemResponseDTO(
                 personagem,
@@ -120,7 +136,9 @@ public class PersonagemController {
         );
     }
 
-    // ===================== UPDATE (ADMIN ONLY) =====================
+    // =====================
+    // UPDATE (ADMIN ONLY)
+    // =====================
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public PersonagemResponseDTO atualizarPersonagem(
@@ -128,10 +146,13 @@ public class PersonagemController {
             @RequestBody PersonagemDTO dto
     ) {
 
-        Personagem personagem = personagemRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Personagem não encontrado")
-                );
+        Personagem personagem =
+                personagemRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Personagem não encontrado"
+                                )
+                        );
 
         if (dto.getName() != null) {
             personagem.setNome(dto.getName());
@@ -162,9 +183,11 @@ public class PersonagemController {
         // =========================
         // FAMILY
         // =========================
-        if (dto.getFamilyId() != null && dto.getFamilyId() > 0) {
+        if (dto.getFamilyId() != null
+                && dto.getFamilyId() > 0) {
 
-            Familia familia = familiaRepository.findById(dto.getFamilyId())
+            Familia familia = familiaRepository
+                    .findById(dto.getFamilyId())
                     .orElseThrow(() ->
                             new RuntimeException(
                                     "Família não encontrada"
@@ -178,12 +201,18 @@ public class PersonagemController {
             personagem.setFamilia(null);
         }
 
-        Personagem atualizado = personagemRepository.save(personagem);
+        Personagem atualizado =
+                personagemRepository.save(personagem);
 
-        return new PersonagemResponseDTO(atualizado, true);
+        return new PersonagemResponseDTO(
+                atualizado,
+                true
+        );
     }
 
-    // ===================== DELETE (ADMIN ONLY) =====================
+    // =====================
+    // DELETE (ADMIN ONLY)
+    // =====================
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -191,14 +220,31 @@ public class PersonagemController {
             @PathVariable Long id
     ) {
 
-        if (!personagemRepository.existsById(id)) {
-            throw new RuntimeException("Personagem não encontrado");
+        Personagem personagem =
+                personagemRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Personagem não encontrado"
+                                )
+                        );
+
+        // =========================
+        // REMOVE IMAGEM CLOUDINARY
+        // =========================
+        if (personagem.getImageUrl() != null
+                && !personagem.getImageUrl().isBlank()) {
+
+            cloudinaryService.deleteFile(
+                    personagem.getImageUrl()
+            );
         }
 
-        personagemRepository.deleteById(id);
+        personagemRepository.delete(personagem);
     }
 
-    // ===================== EVENTOS (ADMIN ONLY) =====================
+    // =====================
+    // EVENTOS (ADMIN ONLY)
+    // =====================
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/eventos")
     public PersonagemResponseDTO adicionarEvento(
@@ -206,16 +252,22 @@ public class PersonagemController {
             @RequestBody EventoPrestigioDTO dto
     ) {
 
-        Personagem atualizado = prestigioService.aplicarEvento(
-                id,
-                dto.getReason(),
-                dto.getDelta()
-        );
+        Personagem atualizado =
+                prestigioService.aplicarEvento(
+                        id,
+                        dto.getReason(),
+                        dto.getDelta()
+                );
 
-        return new PersonagemResponseDTO(atualizado, true);
+        return new PersonagemResponseDTO(
+                atualizado,
+                true
+        );
     }
 
-    // ===================== RECALCULAR (ADMIN ONLY) =====================
+    // =====================
+    // RECALCULAR PRESTIGIO
+    // =====================
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/recalcular-prestigio")
     public PersonagemResponseDTO recalcular(
@@ -225,10 +277,15 @@ public class PersonagemController {
         Personagem personagem =
                 prestigioService.recalcularPrestigio(id);
 
-        return new PersonagemResponseDTO(personagem, true);
+        return new PersonagemResponseDTO(
+                personagem,
+                true
+        );
     }
 
-    // ===================== PLAYER =====================
+    // =====================
+    // PLAYER
+    // =====================
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{personagemId}/player/{playerId}")
     public ResponseEntity<Personagem> atribuirPlayer(
@@ -236,38 +293,75 @@ public class PersonagemController {
             @PathVariable Long playerId
     ) {
 
-        Personagem personagem = service.atribuirPlayer(
-                personagemId,
-                playerId
-        );
+        Personagem personagem =
+                service.atribuirPlayer(
+                        personagemId,
+                        playerId
+                );
 
         return ResponseEntity.ok(personagem);
     }
 
-    // ===================== UPLOAD =====================
+    // =====================
+    // SUBSTITUIR IMAGEM
+    // =====================
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadImagem(
-            @RequestParam("file") MultipartFile file,
-            Authentication auth
+    @PutMapping("/{id}/upload")
+    public ResponseEntity<PersonagemResponseDTO> substituirImagem(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file
     ) {
 
-        System.out.println("=================================");
-        System.out.println("UPLOAD EXECUTADO");
-        System.out.println("AUTH: " + auth);
+        // =========================
+        // BUSCA PERSONAGEM
+        // =========================
+        Personagem personagem =
+                personagemRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Personagem não encontrado"
+                                )
+                        );
 
-        if (auth != null) {
-            System.out.println("AUTHORITIES: " + auth.getAuthorities());
+        // =========================
+        // REMOVE IMAGEM ANTIGA
+        // =========================
+        if (personagem.getImageUrl() != null
+                && !personagem.getImageUrl().isBlank()) {
+
+            cloudinaryService.deleteFile(
+                    personagem.getImageUrl()
+            );
         }
 
-        System.out.println("=================================");
+        // =========================
+        // NOVO UPLOAD
+        // =========================
+        String novaUrl =
+                cloudinaryService.uploadFile(file);
 
-        String url = cloudinaryService.uploadFile(file);
+        // =========================
+        // ATUALIZA URL
+        // =========================
+        personagem.setImageUrl(novaUrl);
 
-        return ResponseEntity.ok(url);
+        // =========================
+        // SALVA
+        // =========================
+        Personagem atualizado =
+                personagemRepository.save(personagem);
+
+        return ResponseEntity.ok(
+                new PersonagemResponseDTO(
+                        atualizado,
+                        true
+                )
+        );
     }
 
-    // ===================== DEBUG AUTH =====================
+    // =====================
+    // DEBUG AUTH
+    // =====================
     @GetMapping("/debug-auth")
     public ResponseEntity<?> debugAuth(
             Authentication auth
@@ -282,10 +376,14 @@ public class PersonagemController {
         );
     }
 
-    // ===================== UTILS =====================
+    // =====================
+    // UTILS
+    // =====================
     private boolean isAdmin(Authentication auth) {
 
-        if (auth == null || !auth.isAuthenticated()) {
+        if (auth == null
+                || !auth.isAuthenticated()) {
+
             return false;
         }
 
@@ -297,15 +395,20 @@ public class PersonagemController {
                 );
     }
 
-    private String extrairUrlLimpa(String urlRaw) {
+    private String extrairUrlLimpa(
+            String urlRaw
+    ) {
 
-        if (urlRaw == null || urlRaw.isBlank()) {
+        if (urlRaw == null
+                || urlRaw.isBlank()) {
+
             return null;
         }
 
         String url = urlRaw.trim();
 
-        if (url.startsWith("{") && url.contains("\"url\"")) {
+        if (url.startsWith("{")
+                && url.contains("\"url\"")) {
 
             try {
 

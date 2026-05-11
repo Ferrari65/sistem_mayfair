@@ -108,7 +108,6 @@ public class EstabelecimentoService {
      * =========================
      */
     public FotoEstabelecimento adicionarFoto(Long estabelecimentoId, MultipartFile file) {
-
         Estabelecimento estabelecimento = buscarPorId(estabelecimentoId);
 
         String imageUrl = cloudinaryService.uploadFile(file);
@@ -118,13 +117,12 @@ public class EstabelecimentoService {
         if (foto == null) {
             foto = new FotoEstabelecimento();
             foto.setEstabelecimento(estabelecimento);
+            estabelecimento.setFoto(foto);
         }
 
         foto.setImageUrl(imageUrl);
 
-        estabelecimento.setFoto(foto);
-
-        repository.save(estabelecimento);
+        repository.save(estabelecimento); // cascade salva/atualiza a foto junto
 
         return foto;
     }

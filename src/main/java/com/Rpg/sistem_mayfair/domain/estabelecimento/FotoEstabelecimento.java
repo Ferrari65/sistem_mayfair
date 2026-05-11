@@ -17,13 +17,10 @@ public class FotoEstabelecimento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*
-     * URL DA IMAGEM (CLOUDINARY)
-     */
     private String imageUrl;
 
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "estabelecimento_id")
+    @OneToOne
+    @JoinColumn(name = "estabelecimento_id", unique = true) 
     private Estabelecimento estabelecimento;
 }
