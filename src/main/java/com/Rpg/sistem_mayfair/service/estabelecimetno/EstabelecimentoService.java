@@ -112,12 +112,12 @@ public class EstabelecimentoService {
 
         String imageUrl = cloudinaryService.uploadFile(file);
 
-        FotoEstabelecimento foto = estabelecimento.getFoto();
+        FotoEstabelecimento foto = estabelecimento.getFotos();
 
         if (foto == null) {
             foto = new FotoEstabelecimento();
             foto.setEstabelecimento(estabelecimento);
-            estabelecimento.setFoto(foto);
+            estabelecimento.setFotos(foto);
         }
 
         foto.setImageUrl(imageUrl);

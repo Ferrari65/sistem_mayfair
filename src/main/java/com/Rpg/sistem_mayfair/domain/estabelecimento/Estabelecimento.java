@@ -85,7 +85,7 @@ public class Estabelecimento {
      * FOTO PRINCIPAL (1:1)
      */
     @OneToOne(mappedBy = "estabelecimento", cascade = CascadeType.ALL, orphanRemoval = true)
-    private FotoEstabelecimento foto;
+    private FotoEstabelecimento fotos;
 
     /*
      * VISITAS
