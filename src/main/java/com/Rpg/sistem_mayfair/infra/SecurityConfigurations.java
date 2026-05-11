@@ -29,22 +29,19 @@ public class SecurityConfigurations {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
-
                 .csrf(csrf -> csrf.disable())
 
                 .cors(Customizer.withDefaults())
 
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        )
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // =========================
-                        // ROTAS PÚBLICAS
-                        // =========================
+                        /* =========================
+                         * PÚBLICO
+                         * ========================= */
                         .requestMatchers(
                                 "/admin/login",
                                 "/v3/api-docs/**",
@@ -52,14 +49,13 @@ public class SecurityConfigurations {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        .requestMatchers("/personagens/debug-auth")
-                        .permitAll()
+                        /* Debug */
+                        .requestMatchers("/personagens/debug-auth").permitAll()
 
-                        // =========================
-                        // GETS PÚBLICOS
-                        // =========================
-                        .requestMatchers(
-                                HttpMethod.GET,
+                        /* =========================
+                         * GET PÚBLICO (leitura geral)
+                         * ========================= */
+                        .requestMatchers(HttpMethod.GET,
                                 "/personagens/**",
                                 "/familias/**",
                                 "/destaques/**",
@@ -68,69 +64,31 @@ public class SecurityConfigurations {
                                 "/estabelecimentos/**"
                         ).permitAll()
 
-                        // =========================
-                        // UPLOAD EXIGE ADMIN
-                        // =========================
-                                // =========================
-// ROTAS ADMIN PERSONAGEM
-// =========================
-                                .requestMatchers(
-                                        HttpMethod.POST,
-                                        "/personagens/**"
-                                ).hasRole("ADMIN")
+                        /* =========================
+                         * ESTABELECIMENTOS (ADMIN)
+                         * ========================= */
+                        .requestMatchers(HttpMethod.POST, "/estabelecimentos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/estabelecimentos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/estabelecimentos/**").hasRole("ADMIN")
 
-                                .requestMatchers(
-                                        HttpMethod.PUT,
-                                        "/personagens/**"
-                                ).hasRole("ADMIN")
+                        /* 🔥 UPLOAD DE IMAGEM */
+                        .requestMatchers(HttpMethod.POST, "/estabelecimentos/*/fotos").hasRole("ADMIN")
 
-                                .requestMatchers(
-                                        HttpMethod.DELETE,
-                                        "/personagens/**"
-                                ).hasRole("ADMIN")
+                        /* =========================
+                         * PERSONAGENS (ADMIN)
+                         * ========================= */
+                        .requestMatchers(HttpMethod.POST, "/personagens/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/personagens/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/personagens/**").hasRole("ADMIN")
 
-                        // =========================
-                        // TODO RESTANTE EXIGE JWT
-                        // =========================
+                        /* =========================
+                         * RESTO
+                         * ========================= */
                         .anyRequest().authenticated()
                 )
 
-                .addFilterBefore(
-                        jwtFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOriginPatterns(List.of("*"));
-
-        configuration.setAllowedMethods(List.of(
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE",
-                "PATCH",
-                "OPTIONS"
-        ));
-
-        configuration.setAllowedHeaders(List.of("*"));
-
-        configuration.setAllowCredentials(false);
-
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration(
-                "/**",
-                configuration
-        );
-
-        return source;
     }
 }
