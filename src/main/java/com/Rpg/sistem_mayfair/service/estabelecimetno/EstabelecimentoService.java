@@ -32,6 +32,8 @@ public class EstabelecimentoService {
      */
     private EstabelecimentoDTO converterParaDTO(Estabelecimento entidade) {
         EstabelecimentoDTO dto = new EstabelecimentoDTO();
+
+        dto.setId(entidade.getId());
         dto.setNomeLocal(entidade.getNomeLocal());
         dto.setDescricao(entidade.getDescricao());
         dto.setMoral(entidade.getMoral());
