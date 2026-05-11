@@ -28,7 +28,9 @@ public class PersonagemService {
         Personagem personagem = new Personagem();
 
         personagem.setNome(dto.getName());
+
         personagem.setIdade(dto.getAge());
+
         personagem.setTitulo(dto.getTitle());
 
         personagem.setPrestigio(
@@ -37,18 +39,36 @@ public class PersonagemService {
                         : 20
         );
 
-        personagem.setDescricao(dto.getDescription());
-        personagem.setImageUrl(dto.getImageUrl());
+        // =========================
+        // DESCRIÇÃO
+        // =========================
+        personagem.setDescricao(
+                dto.getDescription()
+        );
+
+        // =========================
+        // SHAPE
+        // =========================
+        personagem.setShape(
+                dto.getShape()
+        );
+
+        personagem.setImageUrl(
+                dto.getImageUrl()
+        );
 
         // =========================
         // FAMILY
         // =========================
-        if (dto.getFamilyId() != null && dto.getFamilyId() > 0) {
+        if (dto.getFamilyId() != null
+                && dto.getFamilyId() > 0) {
 
             Familia familia = familiaRepository
                     .findById(dto.getFamilyId())
                     .orElseThrow(() ->
-                            new RuntimeException("Família não encontrada")
+                            new RuntimeException(
+                                    "Família não encontrada"
+                            )
                     );
 
             personagem.setFamilia(familia);
@@ -64,11 +84,18 @@ public class PersonagemService {
     // =========================
     // LISTAR PERSONAGENS
     // =========================
-    public List<PersonagemDTO> listar(boolean isAdmin) {
+    public List<PersonagemDTO> listar(
+            boolean isAdmin
+    ) {
 
         return personagemRepository.findAll()
                 .stream()
-                .map(p -> toDTO(p, isAdmin))
+                .map(p ->
+                        toDTO(
+                                p,
+                                isAdmin
+                        )
+                )
                 .toList();
     }
 
@@ -83,13 +110,17 @@ public class PersonagemService {
         Personagem personagem = personagemRepository
                 .findById(personagemId)
                 .orElseThrow(() ->
-                        new RuntimeException("Personagem não encontrado")
+                        new RuntimeException(
+                                "Personagem não encontrado"
+                        )
                 );
 
         Player player = playerRepository
                 .findById(playerId)
                 .orElseThrow(() ->
-                        new RuntimeException("Player não encontrado")
+                        new RuntimeException(
+                                "Player não encontrado"
+                        )
                 );
 
         personagem.setPlayer(player);
@@ -105,22 +136,60 @@ public class PersonagemService {
             boolean isAdmin
     ) {
 
-        PersonagemDTO dto = new PersonagemDTO();
+        PersonagemDTO dto =
+                new PersonagemDTO();
 
-        dto.setName(p.getNome());
-        dto.setAge(p.getIdade());
-        dto.setTitle(p.getTitulo());
-        dto.setPrestige(p.getPrestigio());
-        dto.setDescription(p.getDescricao());
-        dto.setImageUrl(p.getImageUrl());
+        dto.setName(
+                p.getNome()
+        );
 
+        dto.setAge(
+                p.getIdade()
+        );
+
+        dto.setTitle(
+                p.getTitulo()
+        );
+
+        dto.setPrestige(
+                p.getPrestigio()
+        );
+
+        // =========================
+        // DESCRIÇÃO
+        // =========================
+        dto.setDescription(
+                p.getDescricao()
+        );
+
+        // =========================
+        // IMAGE
+        // =========================
+        dto.setImageUrl(
+                p.getImageUrl()
+        );
+
+        // =========================
+        // FAMILY
+        // =========================
         if (p.getFamilia() != null) {
-            dto.setFamilyId(p.getFamilia().getId());
+
+            dto.setFamilyId(
+                    p.getFamilia().getId()
+            );
         }
 
+        // =========================
+        // SHAPE
+        // =========================
         if (isAdmin) {
-            dto.setShape(p.getShape());
+
+            dto.setShape(
+                    p.getShape()
+            );
+
         } else {
+
             dto.setShape(null);
         }
 

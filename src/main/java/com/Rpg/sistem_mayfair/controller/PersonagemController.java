@@ -44,8 +44,24 @@ public class PersonagemController {
         Personagem personagem = new Personagem();
 
         personagem.setNome(dto.getName());
+
         personagem.setIdade(dto.getAge());
+
         personagem.setTitulo(dto.getTitle());
+
+        // =========================
+        // DESCRIÇÃO
+        // =========================
+        personagem.setDescricao(
+                dto.getDescription()
+        );
+
+        // =========================
+        // SHAPE
+        // =========================
+        personagem.setShape(
+                dto.getShape()
+        );
 
         personagem.setPrestigio(
                 dto.getPrestige() != null
@@ -53,10 +69,10 @@ public class PersonagemController {
                         : 20
         );
 
-        personagem.setDescricao(dto.getDescription());
-
         personagem.setImageUrl(
-                extrairUrlLimpa(dto.getImageUrl())
+                extrairUrlLimpa(
+                        dto.getImageUrl()
+                )
         );
 
         // =========================
@@ -166,17 +182,35 @@ public class PersonagemController {
             personagem.setTitulo(dto.getTitle());
         }
 
+        // =========================
+        // DESCRIÇÃO
+        // =========================
         if (dto.getDescription() != null) {
-            personagem.setDescricao(dto.getDescription());
+            personagem.setDescricao(
+                    dto.getDescription()
+            );
+        }
+
+        // =========================
+        // SHAPE
+        // =========================
+        if (dto.getShape() != null) {
+            personagem.setShape(
+                    dto.getShape()
+            );
         }
 
         if (dto.getPrestige() != null) {
-            personagem.setPrestigio(dto.getPrestige());
+            personagem.setPrestigio(
+                    dto.getPrestige()
+            );
         }
 
         if (dto.getImageUrl() != null) {
             personagem.setImageUrl(
-                    extrairUrlLimpa(dto.getImageUrl())
+                    extrairUrlLimpa(
+                            dto.getImageUrl()
+                    )
             );
         }
 
