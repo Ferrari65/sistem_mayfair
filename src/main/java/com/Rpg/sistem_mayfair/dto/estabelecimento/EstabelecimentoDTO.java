@@ -41,5 +41,4 @@ public class EstabelecimentoDTO {
 
     // IDs dos funcionários
     private List<Long> funcionariosIds;
-    private FotoEstabelecimentoDTO foto;
 }

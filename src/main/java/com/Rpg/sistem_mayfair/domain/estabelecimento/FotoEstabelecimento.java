@@ -21,6 +21,6 @@ public class FotoEstabelecimento {
 
     @JsonIgnore
     @OneToOne
-    @JoinColumn(name = "estabelecimento_id", unique = true) 
+    @JoinColumn(name = "estabelecimento_id", unique = true)
     private Estabelecimento estabelecimento;
 }
