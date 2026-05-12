@@ -1,4 +1,4 @@
-package com.Rpg.sistem_mayfair.dto;
+package com.Rpg.sistem_mayfair.dto.personagem;
 
 import com.Rpg.sistem_mayfair.domain.Personagem;
 

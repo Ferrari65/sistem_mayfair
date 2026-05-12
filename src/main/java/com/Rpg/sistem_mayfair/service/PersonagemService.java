@@ -1,9 +1,11 @@
 package com.Rpg.sistem_mayfair.service;
 
+import com.Rpg.sistem_mayfair.domain.Enum.Genero;
+import com.Rpg.sistem_mayfair.domain.Enum.StatusCivil;
 import com.Rpg.sistem_mayfair.domain.Familia;
 import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.domain.Player;
-import com.Rpg.sistem_mayfair.dto.PersonagemDTO;
+import com.Rpg.sistem_mayfair.dto.personagem.PersonagemDTO;
 import com.Rpg.sistem_mayfair.repository.FamiliaRepository;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import com.Rpg.sistem_mayfair.repository.PlayerRepository;
@@ -28,9 +30,7 @@ public class PersonagemService {
         Personagem personagem = new Personagem();
 
         personagem.setNome(dto.getName());
-
         personagem.setIdade(dto.getAge());
-
         personagem.setTitulo(dto.getTitle());
 
         personagem.setPrestigio(
@@ -40,41 +40,66 @@ public class PersonagemService {
         );
 
         // =========================
+        // GENERO
+        // =========================
+        personagem.setGenero(
+                dto.getGenero() != null
+                        ? dto.getGenero()
+                        : Genero.NAO_INFORMADO
+        );
+
+        // =========================
+        // STATUS CIVIL
+        // =========================
+        personagem.setStatusCivil(
+                dto.getStatusCivil() != null
+                        ? dto.getStatusCivil()
+                        : StatusCivil.SOLTEIRO
+        );
+
+        // =========================
+        // PARCEIRO
+        // =========================
+        if (dto.getParceiroId() != null) {
+
+            Personagem parceiro = personagemRepository
+                    .findById(dto.getParceiroId())
+                    .orElseThrow(() ->
+                            new RuntimeException("Parceiro não encontrado")
+                    );
+
+            personagem.setParceiro(parceiro);
+        }
+
+        // =========================
         // DESCRIÇÃO
         // =========================
-        personagem.setDescricao(
-                dto.getDescription()
-        );
+        personagem.setDescricao(dto.getDescription());
 
         // =========================
         // SHAPE
         // =========================
-        personagem.setShape(
-                dto.getShape()
-        );
+        personagem.setShape(dto.getShape());
 
-        personagem.setImageUrl(
-                dto.getImageUrl()
-        );
+        // =========================
+        // IMAGE
+        // =========================
+        personagem.setImageUrl(dto.getImageUrl());
 
         // =========================
         // FAMILY
         // =========================
-        if (dto.getFamilyId() != null
-                && dto.getFamilyId() > 0) {
+        if (dto.getFamilyId() != null && dto.getFamilyId() > 0) {
 
             Familia familia = familiaRepository
                     .findById(dto.getFamilyId())
                     .orElseThrow(() ->
-                            new RuntimeException(
-                                    "Família não encontrada"
-                            )
+                            new RuntimeException("Família não encontrada")
                     );
 
             personagem.setFamilia(familia);
 
         } else {
-
             personagem.setFamilia(null);
         }
 
@@ -84,43 +109,29 @@ public class PersonagemService {
     // =========================
     // LISTAR PERSONAGENS
     // =========================
-    public List<PersonagemDTO> listar(
-            boolean isAdmin
-    ) {
+    public List<PersonagemDTO> listar(boolean isAdmin) {
 
         return personagemRepository.findAll()
                 .stream()
-                .map(p ->
-                        toDTO(
-                                p,
-                                isAdmin
-                        )
-                )
+                .map(p -> toDTO(p, isAdmin))
                 .toList();
     }
 
     // =========================
     // ATRIBUIR PLAYER
     // =========================
-    public Personagem atribuirPlayer(
-            Long personagemId,
-            Long playerId
-    ) {
+    public Personagem atribuirPlayer(Long personagemId, Long playerId) {
 
         Personagem personagem = personagemRepository
                 .findById(personagemId)
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Personagem não encontrado"
-                        )
+                        new RuntimeException("Personagem não encontrado")
                 );
 
         Player player = playerRepository
                 .findById(playerId)
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Player não encontrado"
-                        )
+                        new RuntimeException("Player não encontrado")
                 );
 
         personagem.setPlayer(player);
@@ -131,68 +142,116 @@ public class PersonagemService {
     // =========================
     // ENTITY -> DTO
     // =========================
-    private PersonagemDTO toDTO(
-            Personagem p,
-            boolean isAdmin
-    ) {
+    private PersonagemDTO toDTO(Personagem p, boolean isAdmin) {
 
-        PersonagemDTO dto =
-                new PersonagemDTO();
+        PersonagemDTO dto = new PersonagemDTO();
 
-        dto.setName(
-                p.getNome()
-        );
+        dto.setName(p.getNome());
+        dto.setAge(p.getIdade());
+        dto.setTitle(p.getTitulo());
+        dto.setPrestige(p.getPrestigio());
+        dto.setDescription(p.getDescricao());
+        dto.setImageUrl(p.getImageUrl());
 
-        dto.setAge(
-                p.getIdade()
-        );
-
-        dto.setTitle(
-                p.getTitulo()
-        );
-
-        dto.setPrestige(
-                p.getPrestigio()
-        );
-
-        // =========================
-        // DESCRIÇÃO
-        // =========================
-        dto.setDescription(
-                p.getDescricao()
-        );
-
-        // =========================
-        // IMAGE
-        // =========================
-        dto.setImageUrl(
-                p.getImageUrl()
-        );
-
-        // =========================
-        // FAMILY
-        // =========================
         if (p.getFamilia() != null) {
-
-            dto.setFamilyId(
-                    p.getFamilia().getId()
-            );
+            dto.setFamilyId(p.getFamilia().getId());
         }
 
-        // =========================
-        // SHAPE
-        // =========================
+        dto.setGenero(p.getGenero());
+        dto.setStatusCivil(p.getStatusCivil());
+
+        if (p.getParceiro() != null) {
+            dto.setParceiroId(p.getParceiro().getId_personagens());
+        }
+
+        // SHAPE (só admin vê)
         if (isAdmin) {
-
-            dto.setShape(
-                    p.getShape()
-            );
-
+            dto.setShape(p.getShape());
         } else {
-
             dto.setShape(null);
         }
 
         return dto;
+    }
+
+    // =========================
+    // ATUALIZAR (BLINDADO)
+    // =========================
+    public Personagem atualizar(Long id, PersonagemDTO dto) {
+
+        Personagem personagem = personagemRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Personagem não encontrado")
+                );
+
+        if (dto.getName() != null) {
+            personagem.setNome(dto.getName());
+        }
+
+        if (dto.getAge() != null) {
+            personagem.setIdade(dto.getAge());
+        }
+
+        if (dto.getTitle() != null) {
+            personagem.setTitulo(dto.getTitle());
+        }
+
+        if (dto.getPrestige() != null) {
+            personagem.setPrestigio(dto.getPrestige());
+        }
+
+        if (dto.getDescription() != null) {
+            personagem.setDescricao(dto.getDescription());
+        }
+
+        if (dto.getShape() != null) {
+            personagem.setShape(dto.getShape());
+        }
+
+        if (dto.getImageUrl() != null) {
+            personagem.setImageUrl(dto.getImageUrl());
+        }
+
+        if (dto.getFamilyId() != null) {
+
+            Familia familia = familiaRepository
+                    .findById(dto.getFamilyId())
+                    .orElseThrow(() ->
+                            new RuntimeException("Família não encontrada")
+                    );
+
+            personagem.setFamilia(familia);
+        }
+
+        // =========================
+        // GENERO (SAFE)
+        // =========================
+        if (dto.getGenero() != null) {
+            personagem.setGenero(dto.getGenero());
+        }
+
+        // =========================
+        // STATUS CIVIL (SAFE)
+        // =========================
+        if (dto.getStatusCivil() != null) {
+            personagem.setStatusCivil(dto.getStatusCivil());
+        }
+
+        // =========================
+        // PARCEIRO (SAFE)
+        // =========================
+        if (dto.getParceiroId() != null) {
+
+            Personagem parceiro = personagemRepository
+                    .findById(dto.getParceiroId())
+                    .orElseThrow(() ->
+                            new RuntimeException("Parceiro não encontrado")
+                    );
+
+            personagem.setParceiro(parceiro);
+        }
+
+        return personagemRepository.save(personagem);
     }
 }

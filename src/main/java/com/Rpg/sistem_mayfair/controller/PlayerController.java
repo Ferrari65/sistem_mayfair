@@ -3,7 +3,9 @@ package com.Rpg.sistem_mayfair.controller;
 import com.Rpg.sistem_mayfair.domain.Player;
 import com.Rpg.sistem_mayfair.dto.PlayerDTO;
 import com.Rpg.sistem_mayfair.service.PlayerService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,5 +51,31 @@ public class PlayerController {
         Player player = service.buscarPorId(id);
 
         return ResponseEntity.ok(player);
+    }
+
+    // =========================
+    // UPDATE
+    // =========================
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public Player atualizar(
+            @PathVariable Long id,
+            @RequestBody PlayerDTO dto
+    ) {
+
+        return service.atualizar(id, dto);
+    }
+
+    // =========================
+    // DELETE
+    // =========================
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletar(
+            @PathVariable Long id
+    ) {
+
+        service.deletar(id);
     }
 }

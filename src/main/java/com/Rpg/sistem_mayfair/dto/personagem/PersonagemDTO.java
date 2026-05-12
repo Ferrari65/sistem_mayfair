@@ -1,5 +1,7 @@
-package com.Rpg.sistem_mayfair.dto;
+package com.Rpg.sistem_mayfair.dto.personagem;
 
+import com.Rpg.sistem_mayfair.domain.Enum.Genero;
+import com.Rpg.sistem_mayfair.domain.Enum.StatusCivil;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,4 +17,7 @@ public class PersonagemDTO {
 
     private Long familyId;
     private String shape;
+    private Genero genero;
+    private StatusCivil statusCivil;
+    private Long parceiroId;
 }

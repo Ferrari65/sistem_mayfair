@@ -1,5 +1,7 @@
 package com.Rpg.sistem_mayfair.domain;
 
+import com.Rpg.sistem_mayfair.domain.Enum.Genero;
+import com.Rpg.sistem_mayfair.domain.Enum.StatusCivil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -53,6 +55,14 @@ public class Personagem {
     @JsonBackReference
     private Player player;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Genero genero = Genero.NAO_INFORMADO;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusCivil statusCivil = StatusCivil.SOLTEIRO;
+
     @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("personagem")
     private List<HistoricoPrestigio> historicoPrestigio;
@@ -66,6 +76,11 @@ public class Personagem {
         int novo = this.prestigio + quantidade;
         this.prestigio = Math.max(0, Math.min(50, novo));
     }
+
+    @ManyToOne
+    @JoinColumn(name = "parceiro_id")
+    @JsonIgnoreProperties({"parceiro", "historicoPrestigio", "player"})
+    private Personagem parceiro;
 
     private Boolean diamanteTemporada = false;
 }
