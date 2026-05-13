@@ -65,15 +65,16 @@ public class SecurityConfigurations {
                                         "/destaques/**",
                                         "/historico/**",
                                         "/players/**",
-                                        "/estabelecimentos/**"
+                                        "/estabelecimentos/**",
+                                        "/jornal/**"
                                 ).permitAll()
 
                                 // =========================
                                 // UPLOAD EXIGE ADMIN
                                 // =========================
                                 // =========================
-// ROTAS ADMIN PERSONAGEM
-// =========================
+                            // ROTAS ADMIN PERSONAGEM
+                            // =========================
                                 .requestMatchers(
                                         HttpMethod.POST,
                                         "/personagens/**"
@@ -93,6 +94,7 @@ public class SecurityConfigurations {
                                 // TODO RESTANTE EXIGE JWT
                                 // =========================
                                 .anyRequest().authenticated()
+
                 )
 
                 .addFilterBefore(
