@@ -1,4 +1,4 @@
-package com.Rpg.sistem_mayfair.Enum;
+package com.Rpg.sistem_mayfair.domain.Enum;
 
 public enum JornalReacaoTipo {
 

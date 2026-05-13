@@ -1,6 +1,6 @@
 package com.Rpg.sistem_mayfair.repository.jornal;
 
-import com.Rpg.sistem_mayfair.Enum.JornalReacaoTipo;
+import com.Rpg.sistem_mayfair.domain.Enum.JornalReacaoTipo;
 import com.Rpg.sistem_mayfair.domain.jornal.JornalPostagem;
 import com.Rpg.sistem_mayfair.domain.jornal.JornalReacao;
 import org.springframework.data.jpa.repository.JpaRepository;

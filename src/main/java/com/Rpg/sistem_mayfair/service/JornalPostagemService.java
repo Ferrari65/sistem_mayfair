@@ -1,6 +1,6 @@
 package com.Rpg.sistem_mayfair.service;
 
-import com.Rpg.sistem_mayfair.Enum.JornalReacaoTipo;
+import com.Rpg.sistem_mayfair.domain.Enum.JornalReacaoTipo;
 import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.domain.jornal.JornalLike;
 import com.Rpg.sistem_mayfair.domain.jornal.JornalPostagem;

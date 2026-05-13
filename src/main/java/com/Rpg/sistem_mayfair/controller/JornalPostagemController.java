@@ -1,6 +1,6 @@
 package com.Rpg.sistem_mayfair.controller;
 
-import com.Rpg.sistem_mayfair.Enum.JornalReacaoTipo;
+import com.Rpg.sistem_mayfair.domain.Enum.JornalReacaoTipo;
 import com.Rpg.sistem_mayfair.dto.jornal.JornalPostagemRequestDTO;
 import com.Rpg.sistem_mayfair.dto.jornal.JornalPostagemResponseDTO;
 import com.Rpg.sistem_mayfair.service.JornalPostagemService;

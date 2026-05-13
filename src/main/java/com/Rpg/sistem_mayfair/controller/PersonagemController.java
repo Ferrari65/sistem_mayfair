@@ -1,5 +1,6 @@
 package com.Rpg.sistem_mayfair.controller;
 
+import com.Rpg.sistem_mayfair.domain.Enum.StatusCivil;
 import com.Rpg.sistem_mayfair.domain.Familia;
 import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.dto.EventoPrestigioDTO;
@@ -26,10 +27,10 @@ import java.util.List;
 public class PersonagemController {
 
     private final PersonagemRepository personagemRepository;
-    private final FamiliaRepository familiaRepository;
     private final PrestigioService prestigioService;
     private final CloudinaryService cloudinaryService;
     private final PersonagemService service;
+    private final FamiliaRepository familiaRepository;
 
     // =====================
     // CREATE (ADMIN ONLY)
@@ -41,64 +42,7 @@ public class PersonagemController {
             @RequestBody PersonagemDTO dto
     ) {
 
-        Personagem personagem = new Personagem();
-
-        personagem.setNome(dto.getName());
-
-        personagem.setIdade(dto.getAge());
-
-        personagem.setTitulo(dto.getTitle());
-
-        // =========================
-        // DESCRIÇÃO
-        // =========================
-        personagem.setDescricao(
-                dto.getDescription()
-        );
-
-        // =========================
-        // SHAPE
-        // =========================
-        personagem.setShape(
-                dto.getShape()
-        );
-
-        personagem.setPrestigio(
-                dto.getPrestige() != null
-                        ? dto.getPrestige()
-                        : 20
-        );
-
-        personagem.setImageUrl(
-                extrairUrlLimpa(
-                        dto.getImageUrl()
-                )
-        );
-
-        // =========================
-        // FAMILY
-        // =========================
-        if (dto.getFamilyId() != null
-                && dto.getFamilyId() > 0) {
-
-            Familia familia = familiaRepository
-                    .findById(dto.getFamilyId())
-                    .orElseThrow(() ->
-                            new RuntimeException(
-                                    "Família não encontrada: "
-                                            + dto.getFamilyId()
-                            )
-                    );
-
-            personagem.setFamilia(familia);
-
-        } else {
-
-            personagem.setFamilia(null);
-        }
-
-        Personagem salvo =
-                personagemRepository.save(personagem);
+        Personagem salvo = service.criar(dto);
 
         return new PersonagemResponseDTO(
                 salvo,
@@ -157,91 +101,139 @@ public class PersonagemController {
     // =====================
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public PersonagemResponseDTO atualizarPersonagem(
-            @PathVariable Long id,
-            @RequestBody PersonagemDTO dto
-    ) {
+    // =========================
+// ATUALIZAR (SAFE UPDATE)
+// =========================
+    public Personagem atualizar(Long id, PersonagemDTO dto) {
 
-        Personagem personagem =
-                personagemRepository.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Personagem não encontrado"
-                                )
-                        );
+        Personagem personagem = personagemRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Personagem não encontrado"
+                        )
+                );
 
-        if (dto.getName() != null) {
+        // =========================
+        // NOME
+        // =========================
+        if (dto.getName() != null
+                && !dto.getName().isBlank()) {
+
             personagem.setNome(dto.getName());
         }
 
+        // =========================
+        // IDADE
+        // =========================
         if (dto.getAge() != null) {
+
             personagem.setIdade(dto.getAge());
         }
 
+        // =========================
+        // TITULO
+        // =========================
         if (dto.getTitle() != null) {
+
             personagem.setTitulo(dto.getTitle());
+        }
+
+        // =========================
+        // PRESTIGIO
+        // =========================
+        if (dto.getPrestige() != null) {
+
+            personagem.setPrestigio(dto.getPrestige());
         }
 
         // =========================
         // DESCRIÇÃO
         // =========================
         if (dto.getDescription() != null) {
-            personagem.setDescricao(
-                    dto.getDescription()
-            );
+
+            personagem.setDescricao(dto.getDescription());
         }
 
         // =========================
         // SHAPE
         // =========================
         if (dto.getShape() != null) {
-            personagem.setShape(
-                    dto.getShape()
-            );
+
+            personagem.setShape(dto.getShape());
         }
 
-        if (dto.getPrestige() != null) {
-            personagem.setPrestigio(
-                    dto.getPrestige()
-            );
-        }
-
+        // =========================
+        // IMAGE URL
+        // =========================
         if (dto.getImageUrl() != null) {
-            personagem.setImageUrl(
-                    extrairUrlLimpa(
-                            dto.getImageUrl()
-                    )
-            );
+
+            personagem.setImageUrl(dto.getImageUrl());
         }
 
         // =========================
-        // FAMILY
+        // GENERO
         // =========================
-        if (dto.getFamilyId() != null
-                && dto.getFamilyId() > 0) {
+        if (dto.getGenero() != null) {
 
-            Familia familia = familiaRepository
-                    .findById(dto.getFamilyId())
+            personagem.setGenero(dto.getGenero());
+        }
+
+        // =========================
+        // STATUS CIVIL
+        // =========================
+        if (dto.getStatusCivil() != null) {
+
+            personagem.setStatusCivil(dto.getStatusCivil());
+        }
+
+        // =========================
+        // FAMILIA
+        // =========================
+        if (dto.getFamilyId() != null) {
+
+            // REMOVE FAMILIA
+            if (dto.getFamilyId() <= 0) {
+
+                personagem.setFamilia(null);
+
+            } else {
+
+                Familia familia = familiaRepository
+                        .findById(dto.getFamilyId())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Família não encontrada"
+                                )
+                        );
+
+                personagem.setFamilia(familia);
+            }
+        }
+
+        // =========================
+        // PARCEIRO
+        // =========================
+        if (dto.getParceiroId() != null) {
+
+            Personagem parceiro = personagemRepository
+                    .findById(dto.getParceiroId())
                     .orElseThrow(() ->
                             new RuntimeException(
-                                    "Família não encontrada"
+                                    "Parceiro não encontrado"
                             )
                     );
 
-            personagem.setFamilia(familia);
+            personagem.setParceiro(parceiro);
 
-        } else {
+        } else if (dto.getStatusCivil() != null
+                && dto.getStatusCivil() == StatusCivil.SOLTEIRO) {
 
-            personagem.setFamilia(null);
+            // remove parceiro automaticamente
+            personagem.setParceiro(null);
         }
 
-        Personagem atualizado =
-                personagemRepository.save(personagem);
-
-        return new PersonagemResponseDTO(
-                atualizado,
-                true
-        );
+        return personagemRepository.save(personagem);
     }
 
     // =====================
@@ -427,35 +419,5 @@ public class PersonagemController {
                         authority.getAuthority()
                                 .equals("ROLE_ADMIN")
                 );
-    }
-
-    private String extrairUrlLimpa(
-            String urlRaw
-    ) {
-
-        if (urlRaw == null
-                || urlRaw.isBlank()) {
-
-            return null;
-        }
-
-        String url = urlRaw.trim();
-
-        if (url.startsWith("{")
-                && url.contains("\"url\"")) {
-
-            try {
-
-                return url
-                        .split("\"url\"\\s*:\\s*\"")[1]
-                        .split("\"")[0];
-
-            } catch (Exception e) {
-
-                return url;
-            }
-        }
-
-        return url;
     }
 }

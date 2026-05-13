@@ -1,6 +1,6 @@
 package com.Rpg.sistem_mayfair.domain.jornal;
 
-import com.Rpg.sistem_mayfair.Enum.JornalReacaoTipo;
+import com.Rpg.sistem_mayfair.domain.Enum.JornalReacaoTipo;
 import jakarta.persistence.*;
 import lombok.*;
 
