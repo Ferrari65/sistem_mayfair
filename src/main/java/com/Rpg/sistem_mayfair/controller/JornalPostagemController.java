@@ -3,6 +3,7 @@ package com.Rpg.sistem_mayfair.controller;
 import com.Rpg.sistem_mayfair.domain.Enum.JornalReacaoTipo;
 import com.Rpg.sistem_mayfair.dto.jornal.JornalPostagemRequestDTO;
 import com.Rpg.sistem_mayfair.dto.jornal.JornalPostagemResponseDTO;
+import com.Rpg.sistem_mayfair.dto.jornal.JornalReacaoResponseDTO;
 import com.Rpg.sistem_mayfair.service.JornalPostagemService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +54,10 @@ public class JornalPostagemController {
             @PathVariable Long id
     ) {
         return service.detalhar(id);
+    }
+
+    @GetMapping("/{id}/reacoes")
+    public List<JornalReacaoResponseDTO> listarReacoes(@PathVariable Long id) {
+        return service.listarReacoes(id);
     }
 }

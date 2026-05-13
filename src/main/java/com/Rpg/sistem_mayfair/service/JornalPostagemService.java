@@ -164,4 +164,17 @@ public class JornalPostagemService {
 
         return converter(postagem);
     }
+
+    public List<JornalReacaoResponseDTO> listarReacoes(Long id) {
+
+        JornalPostagem postagem = repository.findById(id)
+                .orElseThrow();
+
+        return Arrays.stream(JornalReacaoTipo.values())
+                .map(tipo -> new JornalReacaoResponseDTO(
+                        tipo.getDescricao(),
+                        reacaoRepository.countByPostagemAndTipo(postagem, tipo)
+                ))
+                .toList();
+    }
 }
