@@ -29,26 +29,9 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-        String method = request.getMethod();
-
-        if (
-                path.startsWith("/jornal/") && method.equals("GET")
-        ) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (
-                path.matches("/jornal/\\d+/(like|reacao)")
-                        && method.equals("POST")
-        ) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String authHeader = request.getHeader("Authorization");
 
+        // 🔥 Se não tem token, apenas segue o fluxo (não bloqueia nada)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -57,6 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             String token = authHeader.substring(7);
 
+            // 🔥 Valida token
             if (jwtService.isTokenValid(token)) {
 
                 String username = jwtService.extractUsername(token);
@@ -64,9 +48,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 List<SimpleGrantedAuthority> authorities =
                         roles.stream()
-                                .map(role -> new SimpleGrantedAuthority(
-                                        role.startsWith("ROLE_") ? role : "ROLE_" + role
-                                ))
+                                .map(role ->
+                                        new SimpleGrantedAuthority(
+                                                role.startsWith("ROLE_")
+                                                        ? role
+                                                        : "ROLE_" + role
+                                        )
+                                )
                                 .toList();
 
                 User principal = new User(username, "", authorities);
