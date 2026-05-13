@@ -29,52 +29,47 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        System.out.println("JWT FILTER EXECUTADO");
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        if (
+                path.startsWith("/jornal/") && method.equals("GET")
+        ) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (
+                path.matches("/jornal/\\d+/(like|reacao)")
+                        && method.equals("POST")
+        ) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-
             String token = authHeader.substring(7);
-
-            System.out.println("TOKEN RECEBIDO");
 
             if (jwtService.isTokenValid(token)) {
 
-                String username =
-                        jwtService.extractUsername(token);
-
-                List<String> roles =
-                        jwtService.extractRoles(token);
+                String username = jwtService.extractUsername(token);
+                List<String> roles = jwtService.extractRoles(token);
 
                 List<SimpleGrantedAuthority> authorities =
                         roles.stream()
-                                .map(role -> {
-
-                                    String finalRole =
-                                            role.startsWith("ROLE_")
-                                                    ? role
-                                                    : "ROLE_" + role;
-
-                                    return new SimpleGrantedAuthority(finalRole);
-                                })
+                                .map(role -> new SimpleGrantedAuthority(
+                                        role.startsWith("ROLE_") ? role : "ROLE_" + role
+                                ))
                                 .toList();
 
-                System.out.println("USERNAME: " + username);
-                System.out.println("ROLES: " + roles);
-                System.out.println("AUTHORITIES: " + authorities);
-
-                User principal = new User(
-                        username,
-                        "",
-                        authorities
-                );
+                User principal = new User(username, "", authorities);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -84,20 +79,13 @@ public class JwtFilter extends OncePerRequestFilter {
                         );
 
                 authentication.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
+                        new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                SecurityContextHolder.clearContext();
-
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
-
-                System.out.println("AUTHENTICATION SETADA");
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
         } catch (Exception e) {
-
             System.out.println("ERRO JWT:");
             e.printStackTrace();
         }

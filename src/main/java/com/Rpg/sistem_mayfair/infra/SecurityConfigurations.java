@@ -29,72 +29,72 @@ public class SecurityConfigurations {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
-
                 .csrf(csrf -> csrf.disable())
-
                 .cors(Customizer.withDefaults())
-
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        )
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 .authorizeHttpRequests(auth -> auth
 
-                                // =========================
-                                // ROTAS PÚBLICAS
-                                // =========================
-                                .requestMatchers(
-                                        "/admin/login",
-                                        "/v3/api-docs/**",
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html"
-                                ).permitAll()
+                        // =========================
+                        // ROTAS PÚBLICAS
+                        // =========================
+                        .requestMatchers(
+                                "/admin/login",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
 
-                                .requestMatchers("/personagens/debug-auth")
-                                .permitAll()
+                        .requestMatchers("/personagens/debug-auth")
+                        .permitAll()
 
-                                // =========================
-                                // GETS PÚBLICOS
-                                // =========================
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/personagens/**",
-                                        "/familias/**",
-                                        "/destaques/**",
-                                        "/historico/**",
-                                        "/players/**",
-                                        "/estabelecimentos/**",
-                                        "/jornal/**"
-                                ).permitAll()
+                        // =========================
+                        // GETS PÚBLICOS
+                        // =========================
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/personagens/**",
+                                "/familias/**",
+                                "/destaques/**",
+                                "/historico/**",
+                                "/players/**",
+                                "/estabelecimentos/**",
+                                "/jornal/**"
+                        ).permitAll()
 
-                                // =========================
-                                // UPLOAD EXIGE ADMIN
-                                // =========================
-                                // =========================
-                            // ROTAS ADMIN PERSONAGEM
-                            // =========================
-                                .requestMatchers(
-                                        HttpMethod.POST,
-                                        "/personagens/**"
-                                ).hasRole("ADMIN")
+                        // =========================
+                        // 🔥 REAÇÕES E LIKE (PÚBLICO)
+                        // =========================
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/jornal/*/like",
+                                "/jornal/*/reacao"
+                        ).permitAll()
 
-                                .requestMatchers(
-                                        HttpMethod.PUT,
-                                        "/personagens/**"
-                                ).hasRole("ADMIN")
+                        // =========================
+                        // ADMIN ONLY
+                        // =========================
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/personagens/**"
+                        ).hasRole("ADMIN")
 
-                                .requestMatchers(
-                                        HttpMethod.DELETE,
-                                        "/personagens/**"
-                                ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/personagens/**"
+                        ).hasRole("ADMIN")
 
-                                // =========================
-                                // TODO RESTANTE EXIGE JWT
-                                // =========================
-                                .anyRequest().authenticated()
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/personagens/**"
+                        ).hasRole("ADMIN")
 
+                        // =========================
+                        // RESTO PRECISA LOGIN
+                        // =========================
+                        .anyRequest().authenticated()
                 )
 
                 .addFilterBefore(
@@ -128,10 +128,7 @@ public class SecurityConfigurations {
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration(
-                "/**",
-                configuration
-        );
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
