@@ -101,10 +101,10 @@ public class PersonagemController {
     // =====================
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    // =========================
-// ATUALIZAR (SAFE UPDATE)
-// =========================
-    public Personagem atualizar(Long id, PersonagemDTO dto) {
+    public Personagem atualizar(
+            @PathVariable Long id,
+            @RequestBody PersonagemDTO dto
+    )  {
 
         Personagem personagem = personagemRepository
                 .findById(id)
