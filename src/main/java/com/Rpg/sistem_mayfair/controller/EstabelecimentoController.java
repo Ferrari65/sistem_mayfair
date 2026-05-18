@@ -19,72 +19,122 @@ public class EstabelecimentoController {
     private final EstabelecimentoService service;
 
     /*
+     * =========================
      * CRIAR
-     * Retorna EstabelecimentoDTO (já com a estrutura de fotos correta)
+     * =========================
      */
     @PostMapping
-    public ResponseEntity<EstabelecimentoDTO> criar(@RequestBody @Valid EstabelecimentoDTO dto) {
+    public ResponseEntity<EstabelecimentoDTO> criar(
+            @RequestBody @Valid EstabelecimentoDTO dto
+    ) {
+
         EstabelecimentoDTO novoEstabelecimento = service.criar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoEstabelecimento);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(novoEstabelecimento);
     }
 
     /*
+     * =========================
+     * ATUALIZAR
+     * =========================
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<EstabelecimentoDTO> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid EstabelecimentoDTO dto
+    ) {
+
+        EstabelecimentoDTO atualizado = service.atualizar(id, dto);
+
+        return ResponseEntity.ok(atualizado);
+    }
+
+    /*
+     * =========================
      * LISTAR TODOS
-     * Retorna List<EstabelecimentoDTO>
+     * =========================
      */
     @GetMapping
     public ResponseEntity<List<EstabelecimentoDTO>> listarTodos() {
+
         return ResponseEntity.ok(service.listarTodos());
     }
 
     /*
+     * =========================
      * BUSCAR POR ID
+     * =========================
      */
     @GetMapping("/{id}")
-    public ResponseEntity<EstabelecimentoDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<EstabelecimentoDTO> buscarPorId(
+            @PathVariable Long id
+    ) {
+
         return ResponseEntity.ok(service.buscarPorIdDTO(id));
     }
 
     /*
+     * =========================
      * ALTERAR MORAL
+     * =========================
      */
     @PatchMapping("/{id}/moral")
     public ResponseEntity<EstabelecimentoDTO> alterarMoral(
             @PathVariable Long id,
             @RequestParam int quantidade
     ) {
-        return ResponseEntity.ok(service.alterarMoral(id, quantidade));
+
+        return ResponseEntity.ok(
+                service.alterarMoral(id, quantidade)
+        );
     }
 
     /*
+     * =========================
      * ALTERAR DINHEIRO
+     * =========================
      */
     @PatchMapping("/{id}/dinheiro")
     public ResponseEntity<EstabelecimentoDTO> alterarDinheiro(
             @PathVariable Long id,
             @RequestParam double valor
     ) {
-        return ResponseEntity.ok(service.alterarDinheiro(id, valor));
+
+        return ResponseEntity.ok(
+                service.alterarDinheiro(id, valor)
+        );
     }
 
     /*
+     * =========================
      * DELETAR
+     * =========================
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(
+            @PathVariable Long id
+    ) {
+
         service.deletar(id);
+
         return ResponseEntity.noContent().build();
     }
 
     /*
+     * =========================
      * ADICIONAR FOTO
-     * Agora retorna o DTO completo, assim o Front já atualiza a imagem na hora
+     * =========================
      */
     @PostMapping("/{id}/fotos")
     public ResponseEntity<EstabelecimentoDTO> adicionarFoto(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.adicionarFoto(id, file));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(service.adicionarFoto(id, file));
     }
 }

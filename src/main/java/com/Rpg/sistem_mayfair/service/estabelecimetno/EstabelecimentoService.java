@@ -26,11 +26,11 @@ public class EstabelecimentoService {
 
     /*
      * =========================
-     * CONVERSOR (ENTITY -> DTO)
+     * CONVERSOR ENTITY -> DTO
      * =========================
-     * Este método garante que o Front-end receba a lista 'fotos' corretamente.
      */
     private EstabelecimentoDTO converterParaDTO(Estabelecimento entidade) {
+
         EstabelecimentoDTO dto = new EstabelecimentoDTO();
 
         dto.setId(entidade.getId());
@@ -41,35 +41,73 @@ public class EstabelecimentoService {
         dto.setHorarioAbertura(entidade.getHorarioAbertura());
         dto.setHorarioFechamento(entidade.getHorarioFechamento());
 
-        // Mapeamento de IDs
-        dto.setProprietarioId(entidade.getProprietario() != null ? entidade.getProprietario().getId_personagens() : null);
-        dto.setFuncionariosIds(entidade.getFuncionarios().stream()
-                .map(Personagem::getId_personagens)
-                .collect(Collectors.toList()));
+        /*
+         * PROPRIETÁRIO
+         */
+        dto.setProprietarioId(
+                entidade.getProprietario() != null
+                        ? entidade.getProprietario().getId_personagens()
+                        : null
+        );
 
-        // Normalização das Fotos para o React
-        List<String> listaFotos = new ArrayList<>();
-        if (entidade.getFotos() != null && entidade.getFotos().getImageUrl() != null) {
-            listaFotos.add(entidade.getFotos().getImageUrl());
+        /*
+         * FUNCIONÁRIOS
+         */
+        dto.setFuncionariosIds(
+                entidade.getFuncionarios()
+                        .stream()
+                        .map(Personagem::getId_personagens)
+                        .collect(Collectors.toList())
+        );
+
+        /*
+         * FOTOS
+         */
+        List<String> fotos = new ArrayList<>();
+
+        if (
+                entidade.getFotos() != null &&
+                        entidade.getFotos().getImageUrl() != null
+        ) {
+            fotos.add(entidade.getFotos().getImageUrl());
         }
-        dto.setFotos(listaFotos);
+
+        dto.setFotos(fotos);
 
         return dto;
     }
 
     /*
      * =========================
-     * CRIAR ESTABELECIMENTO
+     * BUSCAR ENTIDADE
+     * =========================
+     */
+    private Estabelecimento buscarEntidade(Long id) {
+
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Estabelecimento não encontrado")
+                );
+    }
+
+    /*
+     * =========================
+     * CRIAR
      * =========================
      */
     @Transactional
     public EstabelecimentoDTO criar(EstabelecimentoDTO dto) {
-        Personagem proprietario = personagemRepository.findById(dto.getProprietarioId())
-                .orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
 
-        List<Personagem> funcionarios = (dto.getFuncionariosIds() != null)
-                ? personagemRepository.findAllById(dto.getFuncionariosIds())
-                : new ArrayList<>();
+        Personagem proprietario = personagemRepository
+                .findById(dto.getProprietarioId())
+                .orElseThrow(() ->
+                        new RuntimeException("Proprietário não encontrado")
+                );
+
+        List<Personagem> funcionarios =
+                dto.getFuncionariosIds() != null
+                        ? personagemRepository.findAllById(dto.getFuncionariosIds())
+                        : new ArrayList<>();
 
         Estabelecimento estabelecimento = Estabelecimento.builder()
                 .nomeLocal(dto.getNomeLocal())
@@ -82,7 +120,47 @@ public class EstabelecimentoService {
                 .funcionarios(funcionarios)
                 .build();
 
-        return converterParaDTO(repository.save(estabelecimento));
+        repository.save(estabelecimento);
+
+        return converterParaDTO(estabelecimento);
+    }
+
+    /*
+     * =========================
+     * ATUALIZAR
+     * =========================
+     */
+    @Transactional
+    public EstabelecimentoDTO atualizar(Long id, EstabelecimentoDTO dto) {
+
+        Estabelecimento estabelecimento = buscarEntidade(id);
+
+        Personagem proprietario = personagemRepository
+                .findById(dto.getProprietarioId())
+                .orElseThrow(() ->
+                        new RuntimeException("Proprietário não encontrado")
+                );
+
+        List<Personagem> funcionarios =
+                dto.getFuncionariosIds() != null
+                        ? personagemRepository.findAllById(dto.getFuncionariosIds())
+                        : new ArrayList<>();
+
+        estabelecimento.setNomeLocal(dto.getNomeLocal());
+        estabelecimento.setDescricao(dto.getDescricao());
+        estabelecimento.setHorarioAbertura(dto.getHorarioAbertura());
+        estabelecimento.setHorarioFechamento(dto.getHorarioFechamento());
+
+        estabelecimento.setProprietario(proprietario);
+
+        /*
+         * AQUI ATUALIZA FUNCIONÁRIOS
+         */
+        estabelecimento.setFuncionarios(funcionarios);
+
+        repository.save(estabelecimento);
+
+        return converterParaDTO(estabelecimento);
     }
 
     /*
@@ -91,7 +169,9 @@ public class EstabelecimentoService {
      * =========================
      */
     public List<EstabelecimentoDTO> listarTodos() {
-        return repository.findAll().stream()
+
+        return repository.findAll()
+                .stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
@@ -102,34 +182,44 @@ public class EstabelecimentoService {
      * =========================
      */
     public EstabelecimentoDTO buscarPorIdDTO(Long id) {
-        Estabelecimento ent = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
-        return converterParaDTO(ent);
-    }
 
-    // Método interno para operações que precisam da entidade pura
-    private Estabelecimento buscarEntidade(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+        Estabelecimento estabelecimento = buscarEntidade(id);
+
+        return converterParaDTO(estabelecimento);
     }
 
     /*
      * =========================
-     * ALTERAR MORAL / DINHEIRO
+     * ALTERAR MORAL
      * =========================
      */
     @Transactional
     public EstabelecimentoDTO alterarMoral(Long id, int quantidade) {
+
         Estabelecimento estabelecimento = buscarEntidade(id);
+
         estabelecimento.alterarMoral(quantidade);
-        return converterParaDTO(repository.save(estabelecimento));
+
+        repository.save(estabelecimento);
+
+        return converterParaDTO(estabelecimento);
     }
 
+    /*
+     * =========================
+     * ALTERAR DINHEIRO
+     * =========================
+     */
     @Transactional
     public EstabelecimentoDTO alterarDinheiro(Long id, double valor) {
+
         Estabelecimento estabelecimento = buscarEntidade(id);
+
         estabelecimento.alterarDinheiro(valor);
-        return converterParaDTO(repository.save(estabelecimento));
+
+        repository.save(estabelecimento);
+
+        return converterParaDTO(estabelecimento);
     }
 
     /*
@@ -139,17 +229,23 @@ public class EstabelecimentoService {
      */
     @Transactional
     public void deletar(Long id) {
+
         Estabelecimento estabelecimento = buscarEntidade(id);
+
         repository.delete(estabelecimento);
     }
 
     /*
      * =========================
-     * UPLOAD FOTO (SOBRESCREVE)
+     * ADICIONAR FOTO
      * =========================
      */
     @Transactional
-    public EstabelecimentoDTO adicionarFoto(Long estabelecimentoId, MultipartFile file) {
+    public EstabelecimentoDTO adicionarFoto(
+            Long estabelecimentoId,
+            MultipartFile file
+    ) {
+
         Estabelecimento estabelecimento = buscarEntidade(estabelecimentoId);
 
         String imageUrl = cloudinaryService.uploadFile(file);
@@ -157,12 +253,16 @@ public class EstabelecimentoService {
         FotoEstabelecimento foto = estabelecimento.getFotos();
 
         if (foto == null) {
+
             foto = new FotoEstabelecimento();
+
             foto.setEstabelecimento(estabelecimento);
+
             estabelecimento.setFotos(foto);
         }
 
         foto.setImageUrl(imageUrl);
+
         repository.save(estabelecimento);
 
         return converterParaDTO(estabelecimento);
