@@ -61,7 +61,7 @@ public class EstabelecimentoService {
         );
 
         /*
-         * FOTOS
+         * FOTO
          */
         List<String> fotos = new ArrayList<>();
 
@@ -135,6 +135,11 @@ public class EstabelecimentoService {
 
         Estabelecimento estabelecimento = buscarEntidade(id);
 
+        /*
+         * PRESERVA FOTO ATUAL
+         */
+        FotoEstabelecimento fotoAtual = estabelecimento.getFotos();
+
         Personagem proprietario = personagemRepository
                 .findById(dto.getProprietarioId())
                 .orElseThrow(() ->
@@ -148,15 +153,33 @@ public class EstabelecimentoService {
 
         estabelecimento.setNomeLocal(dto.getNomeLocal());
         estabelecimento.setDescricao(dto.getDescricao());
+
         estabelecimento.setHorarioAbertura(dto.getHorarioAbertura());
         estabelecimento.setHorarioFechamento(dto.getHorarioFechamento());
+
+        estabelecimento.setMoral(
+                dto.getMoral() != null
+                        ? dto.getMoral()
+                        : estabelecimento.getMoral()
+        );
+
+        estabelecimento.setDinheiro(
+                dto.getDinheiro() != null
+                        ? dto.getDinheiro()
+                        : estabelecimento.getDinheiro()
+        );
 
         estabelecimento.setProprietario(proprietario);
 
         /*
-         * AQUI ATUALIZA FUNCIONÁRIOS
+         * FUNCIONÁRIOS
          */
         estabelecimento.setFuncionarios(funcionarios);
+
+        /*
+         * RESTAURA FOTO
+         */
+        estabelecimento.setFotos(fotoAtual);
 
         repository.save(estabelecimento);
 
