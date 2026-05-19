@@ -29,17 +29,44 @@ public class SecurityConfigurations {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
+
+                /*
+                 * =========================
+                 * CSRF
+                 * =========================
+                 */
                 .csrf(csrf -> csrf.disable())
+
+                /*
+                 * =========================
+                 * CORS
+                 * =========================
+                 */
                 .cors(Customizer.withDefaults())
+
+                /*
+                 * =========================
+                 * SESSIONLESS JWT
+                 * =========================
+                 */
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
                 )
 
+                /*
+                 * =========================
+                 * AUTORIZAÇÃO
+                 * =========================
+                 */
                 .authorizeHttpRequests(auth -> auth
 
-                        // =========================
-                        // ROTAS PÚBLICAS
-                        // =========================
+                        /*
+                         * =========================
+                         * ROTAS PÚBLICAS
+                         * =========================
+                         */
                         .requestMatchers(
                                 "/admin/login",
                                 "/v3/api-docs/**",
@@ -47,12 +74,18 @@ public class SecurityConfigurations {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        .requestMatchers("/personagens/debug-auth")
-                        .permitAll()
+                        /*
+                         * DEBUG
+                         */
+                        .requestMatchers(
+                                "/personagens/debug-auth"
+                        ).permitAll()
 
-                        // =========================
-                        // GETS PÚBLICOS
-                        // =========================
+                        /*
+                         * =========================
+                         * GETS PÚBLICOS
+                         * =========================
+                         */
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/personagens/**",
@@ -64,18 +97,32 @@ public class SecurityConfigurations {
                                 "/jornal/**"
                         ).permitAll()
 
-                        // =========================
-                        // 🔥 REAÇÕES E LIKE (PÚBLICO)
-                        // =========================
+                        /*
+                         * =========================
+                         * REAÇÕES / LIKES
+                         * =========================
+                         */
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/jornal/*/like",
                                 "/jornal/*/reacao"
                         ).permitAll()
 
-                        // =========================
-                        // ADMIN ONLY
-                        // =========================
+                        /*
+                         * =========================
+                         * UPLOAD FOTO ESTABELECIMENTO
+                         * =========================
+                         */
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/estabelecimentos/*/fotos"
+                        ).permitAll()
+
+                        /*
+                         * =========================
+                         * ADMIN ONLY
+                         * =========================
+                         */
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/personagens/**"
@@ -91,12 +138,19 @@ public class SecurityConfigurations {
                                 "/personagens/**"
                         ).hasRole("ADMIN")
 
-                        // =========================
-                        // RESTO PRECISA LOGIN
-                        // =========================
+                        /*
+                         * =========================
+                         * RESTANTE AUTENTICADO
+                         * =========================
+                         */
                         .anyRequest().authenticated()
                 )
 
+                /*
+                 * =========================
+                 * JWT FILTER
+                 * =========================
+                 */
                 .addFilterBefore(
                         jwtFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -110,8 +164,14 @@ public class SecurityConfigurations {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
+        /*
+         * ORIGENS
+         */
         configuration.setAllowedOriginPatterns(List.of("*"));
 
+        /*
+         * MÉTODOS
+         */
         configuration.setAllowedMethods(List.of(
                 "GET",
                 "POST",
@@ -121,14 +181,26 @@ public class SecurityConfigurations {
                 "OPTIONS"
         ));
 
+        /*
+         * HEADERS
+         */
         configuration.setAllowedHeaders(List.of("*"));
 
+        /*
+         * CREDENTIALS
+         */
         configuration.setAllowCredentials(false);
 
+        /*
+         * REGISTRO
+         */
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration(
+                "/**",
+                configuration
+        );
 
         return source;
     }
