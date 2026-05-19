@@ -3,10 +3,14 @@ package com.Rpg.sistem_mayfair.service.estabelecimetno;
 import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.domain.estabelecimento.Estabelecimento;
 import com.Rpg.sistem_mayfair.domain.estabelecimento.FotoEstabelecimento;
+import com.Rpg.sistem_mayfair.domain.estabelecimento.MovimentacaoEstabelecimento;
 import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
+import com.Rpg.sistem_mayfair.dto.estabelecimento.RegistrarMovimentacaoDTO;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import com.Rpg.sistem_mayfair.repository.estabelecimento.EstabelecimentoRepository;
+import com.Rpg.sistem_mayfair.repository.estabelecimento.MovimentacaoEstabelecimentoRepository;
 import com.Rpg.sistem_mayfair.service.CloudinaryService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +27,7 @@ public class EstabelecimentoService {
     private final EstabelecimentoRepository repository;
     private final PersonagemRepository personagemRepository;
     private final CloudinaryService cloudinaryService;
+    private final MovimentacaoEstabelecimentoRepository movimentacaoRepository;
 
     /*
      * =========================
@@ -290,4 +295,60 @@ public class EstabelecimentoService {
 
         return converterParaDTO(estabelecimento);
     }
+
+    /*
+     * =========================
+     * REGISTRAR MOVIMENTAÇÃO
+     * =========================
+     */
+    @Transactional
+    public void registrarMovimentacao(
+            Long estabelecimentoId,
+            RegistrarMovimentacaoDTO dto
+    ) {
+
+        Estabelecimento estabelecimento = repository
+                .findById(estabelecimentoId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Estabelecimento não encontrado."));
+
+
+        int impactoMoral = dto.getImpactoMoral();
+
+        /*
+         * VALIDAÇÃO
+         */
+        if (impactoMoral > 100 || impactoMoral < -100) {
+
+            throw new IllegalArgumentException(
+                    "Impacto moral inválido. Limite permitido: -100 até 100."
+            );
+        }
+
+        /*
+         * CRIA MOVIMENTAÇÃO
+         */
+        MovimentacaoEstabelecimento movimentacao =
+                MovimentacaoEstabelecimento.builder()
+                        .estabelecimento(estabelecimento)
+                        .tipo(dto.getTipo())
+                        .impactoMoral(impactoMoral)
+                        .observacao(dto.getObservacao())
+                        .build();
+
+        movimentacaoRepository.save(movimentacao);
+
+        /*
+         * ALTERA MORAL
+         */
+        estabelecimento.alterarMoral(impactoMoral);
+
+        /*
+         * ESTATÍSTICA
+         */
+        estabelecimento.registrarMovimentacao();
+
+        repository.save(estabelecimento);
+    }
+
 }

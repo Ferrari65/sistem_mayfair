@@ -136,7 +136,12 @@ public class SecurityConfigurations {
                         .requestMatchers(
                                 HttpMethod.DELETE,
                                 "/personagens/**"
+
                         ).hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST,
+                                "/estabelecimentos/*/movimentacoes")
+                        .hasRole("ADMIN")
 
                         /*
                          * =========================

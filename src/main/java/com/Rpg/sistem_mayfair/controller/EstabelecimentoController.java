@@ -1,6 +1,7 @@
 package com.Rpg.sistem_mayfair.controller;
 
 import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
+import com.Rpg.sistem_mayfair.dto.estabelecimento.RegistrarMovimentacaoDTO;
 import com.Rpg.sistem_mayfair.service.estabelecimetno.EstabelecimentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -105,6 +106,24 @@ public class EstabelecimentoController {
         return ResponseEntity.ok(
                 service.alterarDinheiro(id, valor)
         );
+    }
+
+    /*
+     * =========================
+     * REGISTRAR MOVIMENTAÇÃO
+     * =========================
+     */
+    @PostMapping("/{id}/movimentacoes")
+    public ResponseEntity<Void> registrarMovimentacao(
+            @PathVariable Long id,
+            @RequestBody @Valid RegistrarMovimentacaoDTO dto
+    ) {
+
+        service.registrarMovimentacao(id, dto);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
     }
 
     /*

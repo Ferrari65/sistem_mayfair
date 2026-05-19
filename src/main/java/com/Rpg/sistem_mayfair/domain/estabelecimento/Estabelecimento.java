@@ -48,6 +48,31 @@ public class Estabelecimento {
     private Double dinheiro = 0.0;
 
     /*
+     * MOVIMENTAÇÕES
+     */
+    @OneToMany(
+            mappedBy = "estabelecimento",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<MovimentacaoEstabelecimento> movimentacoes = new ArrayList<>();
+
+    /*
+     * ESTATÍSTICAS
+     */
+    @Column(nullable = false)
+    private Long totalMovimentacoes = 0L;
+
+    /*
+     * =========================
+     * MOVIMENTAÇÕES
+     * =========================
+     */
+    public void registrarMovimentacao() {
+        this.totalMovimentacoes++;
+    }
+
+    /*
      * HORÁRIOS
      */
     private LocalTime horarioAbertura;
@@ -86,16 +111,6 @@ public class Estabelecimento {
      */
     @OneToOne(mappedBy = "estabelecimento", cascade = CascadeType.ALL, orphanRemoval = true)
     private FotoEstabelecimento fotos;
-
-    /*
-     * VISITAS
-     */
-    @OneToMany(
-            mappedBy = "estabelecimento",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<VisitaEstabelecimento> visitas = new ArrayList<>();
 
     /*
      * =========================

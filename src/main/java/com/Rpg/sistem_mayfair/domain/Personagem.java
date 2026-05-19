@@ -2,6 +2,7 @@ package com.Rpg.sistem_mayfair.domain;
 
 import com.Rpg.sistem_mayfair.domain.Enum.Genero;
 import com.Rpg.sistem_mayfair.domain.Enum.StatusCivil;
+import com.Rpg.sistem_mayfair.domain.jornal.JornalPostagem;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -10,6 +11,7 @@ import lombok.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -76,6 +78,17 @@ public class Personagem {
         int novo = this.prestigio + quantidade;
         this.prestigio = Math.max(0, Math.min(50, novo));
     }
+
+    @ManyToMany(mappedBy = "personagens")
+    private List<JornalPostagem> jornais = new ArrayList<>();
+
+    @PreRemove
+    private void removerAssociacoesJornais() {
+        for (JornalPostagem jornal : jornais) {
+            jornal.getPersonagens().remove(this);
+        }
+    }
+
 
     @ManyToOne
     @JoinColumn(name = "parceiro_id")
