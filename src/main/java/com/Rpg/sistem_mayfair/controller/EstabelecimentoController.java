@@ -1,6 +1,7 @@
 package com.Rpg.sistem_mayfair.controller;
 
 import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
+import com.Rpg.sistem_mayfair.dto.estabelecimento.EstatisticasEstabelecimentoDTO;
 import com.Rpg.sistem_mayfair.dto.estabelecimento.RegistrarMovimentacaoDTO;
 import com.Rpg.sistem_mayfair.service.estabelecimetno.EstabelecimentoService;
 import jakarta.validation.Valid;
@@ -155,5 +156,15 @@ public class EstabelecimentoController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(service.adicionarFoto(id, file));
+    }
+
+    @GetMapping("/{id}/estatisticas")
+    public ResponseEntity<EstatisticasEstabelecimentoDTO> buscarEstatisticas(
+            @PathVariable Long id
+    ) {
+
+        return ResponseEntity.ok(
+                service.buscarEstatisticas(id)
+        );
     }
 }

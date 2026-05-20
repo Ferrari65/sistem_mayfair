@@ -1,10 +1,12 @@
 package com.Rpg.sistem_mayfair.service.estabelecimetno;
 
+import com.Rpg.sistem_mayfair.domain.Enum.TipoMovimentacaoEstabelecimento;
 import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.domain.estabelecimento.Estabelecimento;
 import com.Rpg.sistem_mayfair.domain.estabelecimento.FotoEstabelecimento;
 import com.Rpg.sistem_mayfair.domain.estabelecimento.MovimentacaoEstabelecimento;
 import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
+import com.Rpg.sistem_mayfair.dto.estabelecimento.EstatisticasEstabelecimentoDTO;
 import com.Rpg.sistem_mayfair.dto.estabelecimento.RegistrarMovimentacaoDTO;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import com.Rpg.sistem_mayfair.repository.estabelecimento.EstabelecimentoRepository;
@@ -17,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -349,6 +353,40 @@ public class EstabelecimentoService {
         estabelecimento.registrarMovimentacao();
 
         repository.save(estabelecimento);
+    }
+    public EstatisticasEstabelecimentoDTO buscarEstatisticas(Long estabelecimentoId) {
+
+        Estabelecimento estabelecimento = repository.findById(estabelecimentoId)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+
+        List<Object[]> resultado =
+                movimentacaoRepository.contarMovimentacoesPorTipo(estabelecimentoId);
+
+        Map<String, Long> movimentacoesPorTipo = new HashMap<>();
+
+        for (Object[] linha : resultado) {
+
+            TipoMovimentacaoEstabelecimento tipo =
+                    (TipoMovimentacaoEstabelecimento) linha[0];
+
+            Long quantidade = (Long) linha[1];
+
+            movimentacoesPorTipo.put(tipo.name(), quantidade);
+        }
+
+        Integer impactoMoralTotal =
+                movimentacaoRepository.somarImpactoMoral(estabelecimentoId);
+
+        MovimentacaoEstabelecimento ultima =
+                movimentacaoRepository
+                        .findTopByEstabelecimentoIdOrderByDataMovimentacaoDesc(estabelecimentoId);
+
+        return new EstatisticasEstabelecimentoDTO(
+                estabelecimento.getTotalMovimentacoes(),
+                movimentacoesPorTipo,
+                impactoMoralTotal,
+                ultima != null ? ultima.getDataMovimentacao() : null
+        );
     }
 
 }
