@@ -179,4 +179,14 @@ public class EstabelecimentoController {
         service.deletarAmbiente(ambienteId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/ambientes/{id}/fotos")
+    public ResponseEntity<AmbienteEstabelecimentoDTO> adicionarFotoAmbiente(
+            @PathVariable Long id,
+            @RequestParam MultipartFile file
+    ) {
+        return ResponseEntity.ok(
+                service.adicionarFotoAmbiente(id, file)
+        );
+    }
 }

@@ -30,41 +30,18 @@ public class SecurityConfigurations {
 
         return http
 
-                /*
-                 * =========================
-                 * CSRF
-                 * =========================
-                 */
                 .csrf(csrf -> csrf.disable())
-
-                /*
-                 * =========================
-                 * CORS
-                 * =========================
-                 */
                 .cors(Customizer.withDefaults())
 
-                /*
-                 * =========================
-                 * SESSIONLESS JWT
-                 * =========================
-                 */
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        )
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                /*
-                 * =========================
-                 * AUTORIZAÇÃO
-                 * =========================
-                 */
                 .authorizeHttpRequests(auth -> auth
 
                         /*
                          * =========================
-                         * ROTAS PÚBLICAS
+                         * PÚBLICO
                          * =========================
                          */
                         .requestMatchers(
@@ -74,17 +51,12 @@ public class SecurityConfigurations {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        /*
-                         * DEBUG
-                         */
                         .requestMatchers(
                                 "/personagens/debug-auth"
                         ).permitAll()
 
                         /*
-                         * =========================
                          * GETS PÚBLICOS
-                         * =========================
                          */
                         .requestMatchers(
                                 HttpMethod.GET,
@@ -98,9 +70,7 @@ public class SecurityConfigurations {
                         ).permitAll()
 
                         /*
-                         * =========================
                          * REAÇÕES / LIKES
-                         * =========================
                          */
                         .requestMatchers(
                                 HttpMethod.POST,
@@ -109,9 +79,7 @@ public class SecurityConfigurations {
                         ).permitAll()
 
                         /*
-                         * =========================
-                         * UPLOAD FOTO ESTABELECIMENTO
-                         * =========================
+                         * FOTO ESTABELECIMENTO
                          */
                         .requestMatchers(
                                 HttpMethod.POST,
@@ -123,25 +91,19 @@ public class SecurityConfigurations {
                          * ADMIN ONLY
                          * =========================
                          */
+                        .requestMatchers(HttpMethod.POST, "/personagens/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT, "/personagens/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/personagens/**")
+                        .hasRole("ADMIN")
+
                         .requestMatchers(
                                 HttpMethod.POST,
-                                "/personagens/**"
+                                "/estabelecimentos/*/movimentacoes"
                         ).hasRole("ADMIN")
-
-                        .requestMatchers(
-                                HttpMethod.PUT,
-                                "/personagens/**"
-                        ).hasRole("ADMIN")
-
-                        .requestMatchers(
-                                HttpMethod.DELETE,
-                                "/personagens/**"
-
-                        ).hasRole("ADMIN")
-
-                        .requestMatchers(HttpMethod.POST,
-                                "/estabelecimentos/*/movimentacoes")
-                        .hasRole("ADMIN")
 
                         /*
                          * =========================
@@ -151,15 +113,7 @@ public class SecurityConfigurations {
                         .anyRequest().authenticated()
                 )
 
-                /*
-                 * =========================
-                 * JWT FILTER
-                 * =========================
-                 */
-                .addFilterBefore(
-                        jwtFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .build();
     }
@@ -169,43 +123,17 @@ public class SecurityConfigurations {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        /*
-         * ORIGENS
-         */
         configuration.setAllowedOriginPatterns(List.of("*"));
-
-        /*
-         * MÉTODOS
-         */
         configuration.setAllowedMethods(List.of(
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE",
-                "PATCH",
-                "OPTIONS"
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
         ));
-
-        /*
-         * HEADERS
-         */
         configuration.setAllowedHeaders(List.of("*"));
-
-        /*
-         * CREDENTIALS
-         */
         configuration.setAllowCredentials(false);
 
-        /*
-         * REGISTRO
-         */
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration(
-                "/**",
-                configuration
-        );
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }

@@ -60,7 +60,7 @@ public class EstabelecimentoService {
         );
 
         /*
-         * FOTOS
+         * FOTOS ESTABELECIMENTO
          */
         List<FotoEstabelecimentoDTO> fotosDTO = new ArrayList<>();
 
@@ -93,6 +93,11 @@ public class EstabelecimentoService {
         return dto;
     }
 
+    /*
+     * =========================
+     * AMBIENTE MAPPER (COM FOTOS)
+     * =========================
+     */
     private AmbienteEstabelecimentoDTO mapAmbienteToDTO(AmbienteEstabelecimento amb) {
 
         AmbienteEstabelecimentoDTO dto = new AmbienteEstabelecimentoDTO();
@@ -102,8 +107,21 @@ public class EstabelecimentoService {
         dto.setDescricao(amb.getDescricao());
         dto.setTipo(amb.getTipo() != null ? amb.getTipo().name() : null);
 
+        List<String> fotos = amb.getFotos()
+                .stream()
+                .map(FotoAmbiente::getImageUrl)
+                .toList();
+
+        dto.setFotos(fotos);
+
         return dto;
     }
+
+    /*
+     * =========================
+     * BUSCAS
+     * =========================
+     */
 
     private Estabelecimento buscarEntidade(Long id) {
         return estabelecimentoRepository.findById(id)
@@ -117,7 +135,7 @@ public class EstabelecimentoService {
 
     /*
      * =========================
-     * CRIAR ESTABELECIMENTO
+     * ESTABELECIMENTO - CRUD
      * =========================
      */
 
@@ -148,12 +166,6 @@ public class EstabelecimentoService {
         return converterParaDTO(estabelecimento);
     }
 
-    /*
-     * =========================
-     * ATUALIZAR ESTABELECIMENTO
-     * =========================
-     */
-
     @Transactional
     public EstabelecimentoDTO atualizar(Long id, EstabelecimentoDTO dto) {
 
@@ -181,12 +193,6 @@ public class EstabelecimentoService {
         return converterParaDTO(estabelecimento);
     }
 
-    /*
-     * =========================
-     * LISTAR / BUSCAR
-     * =========================
-     */
-
     public List<EstabelecimentoDTO> listarTodos() {
         return estabelecimentoRepository.findAll()
                 .stream()
@@ -198,6 +204,12 @@ public class EstabelecimentoService {
         return converterParaDTO(buscarEntidade(id));
     }
 
+    @Transactional
+    public void deletar(Long id) {
+        Estabelecimento estabelecimento = buscarEntidade(id);
+        estabelecimentoRepository.delete(estabelecimento);
+    }
+
     /*
      * =========================
      * MORAL / DINHEIRO
@@ -206,27 +218,23 @@ public class EstabelecimentoService {
 
     @Transactional
     public EstabelecimentoDTO alterarMoral(Long id, int quantidade) {
-
         Estabelecimento estabelecimento = buscarEntidade(id);
         estabelecimento.alterarMoral(quantidade);
-
         estabelecimentoRepository.save(estabelecimento);
         return converterParaDTO(estabelecimento);
     }
 
     @Transactional
     public EstabelecimentoDTO alterarDinheiro(Long id, double valor) {
-
         Estabelecimento estabelecimento = buscarEntidade(id);
         estabelecimento.alterarDinheiro(valor);
-
         estabelecimentoRepository.save(estabelecimento);
         return converterParaDTO(estabelecimento);
     }
 
     /*
      * =========================
-     * FOTO
+     * FOTO ESTABELECIMENTO
      * =========================
      */
 
@@ -251,7 +259,7 @@ public class EstabelecimentoService {
 
     /*
      * =========================
-     * AMBIENTE
+     * AMBIENTES
      * =========================
      */
 
@@ -297,7 +305,31 @@ public class EstabelecimentoService {
 
     /*
      * =========================
-     * MOVIMENTAÇÃO / ESTATÍSTICAS
+     * FOTO AMBIENTE (NOVO)
+     * =========================
+     */
+
+    @Transactional
+    public AmbienteEstabelecimentoDTO adicionarFotoAmbiente(Long ambienteId, MultipartFile file) {
+
+        AmbienteEstabelecimento ambiente = buscarAmbienteEntity(ambienteId);
+
+        String url = cloudinaryService.uploadFile(file);
+
+        FotoAmbiente foto = new FotoAmbiente();
+        foto.setImageUrl(url);
+        foto.setAmbiente(ambiente);
+
+        ambiente.getFotos().add(foto);
+
+        ambienteRepository.save(ambiente);
+
+        return mapAmbienteToDTO(ambiente);
+    }
+
+    /*
+     * =========================
+     * MOVIMENTAÇÃO
      * =========================
      */
 
@@ -310,7 +342,7 @@ public class EstabelecimentoService {
         int impactoMoral = dto.getImpactoMoral();
 
         if (impactoMoral > 100 || impactoMoral < -100) {
-            throw new IllegalArgumentException("Impacto moral inválido. Limite: -100 até 100.");
+            throw new IllegalArgumentException("Impacto moral inválido.");
         }
 
         MovimentacaoEstabelecimento movimentacao =
@@ -329,11 +361,11 @@ public class EstabelecimentoService {
         estabelecimentoRepository.save(estabelecimento);
     }
 
-    @Transactional
-    public void deletar(Long id) {
-        Estabelecimento estabelecimento = buscarEntidade(id);
-        estabelecimentoRepository.delete(estabelecimento);
-    }
+    /*
+     * =========================
+     * ESTATÍSTICAS
+     * =========================
+     */
 
     public EstatisticasEstabelecimentoDTO buscarEstatisticas(Long estabelecimentoId) {
 

@@ -39,7 +39,6 @@ public class AmbienteEstabelecimento {
      * FOTOS DO AMBIENTE
      * (corrigido: precisa de relação reversa depois se quiser avançar)
      */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "ambiente_id")
+    @OneToMany(mappedBy = "ambiente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FotoAmbiente> fotos = new ArrayList<>();
 }
