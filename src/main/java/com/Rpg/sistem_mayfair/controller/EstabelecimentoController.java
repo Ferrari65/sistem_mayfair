@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +26,7 @@ public class EstabelecimentoController {
      * =========================
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<EstabelecimentoDTO> criar(
             @RequestBody @Valid EstabelecimentoDTO dto
@@ -34,6 +36,7 @@ public class EstabelecimentoController {
                 .body(service.criar(dto));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EstabelecimentoDTO> atualizar(
             @PathVariable Long id,
@@ -54,6 +57,7 @@ public class EstabelecimentoController {
         return ResponseEntity.ok(service.buscarPorIdDTO(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable Long id
@@ -68,6 +72,7 @@ public class EstabelecimentoController {
      * =========================
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/moral")
     public ResponseEntity<EstabelecimentoDTO> alterarMoral(
             @PathVariable Long id,
@@ -76,6 +81,7 @@ public class EstabelecimentoController {
         return ResponseEntity.ok(service.alterarMoral(id, quantidade));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/dinheiro")
     public ResponseEntity<EstabelecimentoDTO> alterarDinheiro(
             @PathVariable Long id,
@@ -90,6 +96,7 @@ public class EstabelecimentoController {
      * =========================
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/movimentacoes")
     public ResponseEntity<Void> registrarMovimentacao(
             @PathVariable Long id,
@@ -115,6 +122,7 @@ public class EstabelecimentoController {
      * =========================
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/fotos")
     public ResponseEntity<EstabelecimentoDTO> adicionarFoto(
             @PathVariable Long id,
@@ -131,6 +139,7 @@ public class EstabelecimentoController {
      * =========================
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/ambientes")
     public ResponseEntity<AmbienteEstabelecimentoDTO> criarAmbiente(
             @PathVariable Long id,
