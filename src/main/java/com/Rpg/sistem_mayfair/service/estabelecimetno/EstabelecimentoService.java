@@ -2,13 +2,10 @@ package com.Rpg.sistem_mayfair.service.estabelecimetno;
 
 import com.Rpg.sistem_mayfair.domain.Enum.TipoMovimentacaoEstabelecimento;
 import com.Rpg.sistem_mayfair.domain.Personagem;
-import com.Rpg.sistem_mayfair.domain.estabelecimento.Estabelecimento;
-import com.Rpg.sistem_mayfair.domain.estabelecimento.FotoEstabelecimento;
-import com.Rpg.sistem_mayfair.domain.estabelecimento.MovimentacaoEstabelecimento;
-import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
-import com.Rpg.sistem_mayfair.dto.estabelecimento.EstatisticasEstabelecimentoDTO;
-import com.Rpg.sistem_mayfair.dto.estabelecimento.RegistrarMovimentacaoDTO;
+import com.Rpg.sistem_mayfair.domain.estabelecimento.*;
+import com.Rpg.sistem_mayfair.dto.estabelecimento.*;
 import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
+import com.Rpg.sistem_mayfair.repository.estabelecimento.AmbienteEstabelecimentoRepository;
 import com.Rpg.sistem_mayfair.repository.estabelecimento.EstabelecimentoRepository;
 import com.Rpg.sistem_mayfair.repository.estabelecimento.MovimentacaoEstabelecimentoRepository;
 import com.Rpg.sistem_mayfair.service.CloudinaryService;
@@ -18,26 +15,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EstabelecimentoService {
 
-    private final EstabelecimentoRepository repository;
+    private final EstabelecimentoRepository estabelecimentoRepository;
     private final PersonagemRepository personagemRepository;
     private final CloudinaryService cloudinaryService;
     private final MovimentacaoEstabelecimentoRepository movimentacaoRepository;
+    private final AmbienteEstabelecimentoRepository ambienteRepository;
 
     /*
      * =========================
-     * CONVERSOR ENTITY -> DTO
+     * MAPPERS
      * =========================
      */
+
     private EstabelecimentoDTO converterParaDTO(Estabelecimento entidade) {
 
         EstabelecimentoDTO dto = new EstabelecimentoDTO();
@@ -50,18 +46,12 @@ public class EstabelecimentoService {
         dto.setHorarioAbertura(entidade.getHorarioAbertura());
         dto.setHorarioFechamento(entidade.getHorarioFechamento());
 
-        /*
-         * PROPRIETÁRIO
-         */
         dto.setProprietarioId(
                 entidade.getProprietario() != null
                         ? entidade.getProprietario().getId_personagens()
                         : null
         );
 
-        /*
-         * FUNCIONÁRIOS
-         */
         dto.setFuncionariosIds(
                 entidade.getFuncionarios()
                         .stream()
@@ -70,48 +60,72 @@ public class EstabelecimentoService {
         );
 
         /*
-         * FOTO
+         * FOTOS
          */
-        List<String> fotos = new ArrayList<>();
+        List<FotoEstabelecimentoDTO> fotosDTO = new ArrayList<>();
 
-        if (
-                entidade.getFotos() != null &&
-                        entidade.getFotos().getImageUrl() != null
-        ) {
-            fotos.add(entidade.getFotos().getImageUrl());
+        if (entidade.getFotos() != null) {
+            fotosDTO = entidade.getFotos()
+                    .stream()
+                    .map(foto -> {
+                        FotoEstabelecimentoDTO dtoFoto = new FotoEstabelecimentoDTO();
+                        dtoFoto.setId(foto.getId());
+                        dtoFoto.setImageUrl(foto.getImageUrl());
+                        dtoFoto.setPrincipal(foto.getPrincipal());
+                        return dtoFoto;
+                    })
+                    .collect(Collectors.toList());
         }
 
-        dto.setFotos(fotos);
+        dto.setFotos(fotosDTO);
+
+        /*
+         * AMBIENTES
+         */
+        List<AmbienteEstabelecimentoDTO> ambientesDTO =
+                ambienteRepository.findByEstabelecimentoId(entidade.getId())
+                        .stream()
+                        .map(this::mapAmbienteToDTO)
+                        .collect(Collectors.toList());
+
+        dto.setAmbientes(ambientesDTO);
 
         return dto;
     }
 
-    /*
-     * =========================
-     * BUSCAR ENTIDADE
-     * =========================
-     */
-    private Estabelecimento buscarEntidade(Long id) {
+    private AmbienteEstabelecimentoDTO mapAmbienteToDTO(AmbienteEstabelecimento amb) {
 
-        return repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Estabelecimento não encontrado")
-                );
+        AmbienteEstabelecimentoDTO dto = new AmbienteEstabelecimentoDTO();
+
+        dto.setId(amb.getId());
+        dto.setNome(amb.getNome());
+        dto.setDescricao(amb.getDescricao());
+        dto.setTipo(amb.getTipo() != null ? amb.getTipo().name() : null);
+
+        return dto;
+    }
+
+    private Estabelecimento buscarEntidade(Long id) {
+        return estabelecimentoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+    }
+
+    private AmbienteEstabelecimento buscarAmbienteEntity(Long id) {
+        return ambienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ambiente não encontrado"));
     }
 
     /*
      * =========================
-     * CRIAR
+     * CRIAR ESTABELECIMENTO
      * =========================
      */
+
     @Transactional
     public EstabelecimentoDTO criar(EstabelecimentoDTO dto) {
 
-        Personagem proprietario = personagemRepository
-                .findById(dto.getProprietarioId())
-                .orElseThrow(() ->
-                        new RuntimeException("Proprietário não encontrado")
-                );
+        Personagem proprietario = personagemRepository.findById(dto.getProprietarioId())
+                .orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
 
         List<Personagem> funcionarios =
                 dto.getFuncionariosIds() != null
@@ -129,31 +143,24 @@ public class EstabelecimentoService {
                 .funcionarios(funcionarios)
                 .build();
 
-        repository.save(estabelecimento);
+        estabelecimentoRepository.save(estabelecimento);
 
         return converterParaDTO(estabelecimento);
     }
 
     /*
      * =========================
-     * ATUALIZAR
+     * ATUALIZAR ESTABELECIMENTO
      * =========================
      */
+
     @Transactional
     public EstabelecimentoDTO atualizar(Long id, EstabelecimentoDTO dto) {
 
         Estabelecimento estabelecimento = buscarEntidade(id);
 
-        /*
-         * PRESERVA FOTO ATUAL
-         */
-        FotoEstabelecimento fotoAtual = estabelecimento.getFotos();
-
-        Personagem proprietario = personagemRepository
-                .findById(dto.getProprietarioId())
-                .orElseThrow(() ->
-                        new RuntimeException("Proprietário não encontrado")
-                );
+        Personagem proprietario = personagemRepository.findById(dto.getProprietarioId())
+                .orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
 
         List<Personagem> funcionarios =
                 dto.getFuncionariosIds() != null
@@ -162,176 +169,150 @@ public class EstabelecimentoService {
 
         estabelecimento.setNomeLocal(dto.getNomeLocal());
         estabelecimento.setDescricao(dto.getDescricao());
-
         estabelecimento.setHorarioAbertura(dto.getHorarioAbertura());
         estabelecimento.setHorarioFechamento(dto.getHorarioFechamento());
-
-        estabelecimento.setMoral(
-                dto.getMoral() != null
-                        ? dto.getMoral()
-                        : estabelecimento.getMoral()
-        );
-
-        estabelecimento.setDinheiro(
-                dto.getDinheiro() != null
-                        ? dto.getDinheiro()
-                        : estabelecimento.getDinheiro()
-        );
-
+        estabelecimento.setMoral(dto.getMoral() != null ? dto.getMoral() : estabelecimento.getMoral());
+        estabelecimento.setDinheiro(dto.getDinheiro() != null ? dto.getDinheiro() : estabelecimento.getDinheiro());
         estabelecimento.setProprietario(proprietario);
-
-        /*
-         * FUNCIONÁRIOS
-         */
         estabelecimento.setFuncionarios(funcionarios);
 
-        /*
-         * RESTAURA FOTO
-         */
-        estabelecimento.setFotos(fotoAtual);
-
-        repository.save(estabelecimento);
+        estabelecimentoRepository.save(estabelecimento);
 
         return converterParaDTO(estabelecimento);
     }
 
     /*
      * =========================
-     * LISTAR TODOS
+     * LISTAR / BUSCAR
      * =========================
      */
-    public List<EstabelecimentoDTO> listarTodos() {
 
-        return repository.findAll()
+    public List<EstabelecimentoDTO> listarTodos() {
+        return estabelecimentoRepository.findAll()
                 .stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
-    /*
-     * =========================
-     * BUSCAR POR ID
-     * =========================
-     */
     public EstabelecimentoDTO buscarPorIdDTO(Long id) {
-
-        Estabelecimento estabelecimento = buscarEntidade(id);
-
-        return converterParaDTO(estabelecimento);
+        return converterParaDTO(buscarEntidade(id));
     }
 
     /*
      * =========================
-     * ALTERAR MORAL
+     * MORAL / DINHEIRO
      * =========================
      */
+
     @Transactional
     public EstabelecimentoDTO alterarMoral(Long id, int quantidade) {
 
         Estabelecimento estabelecimento = buscarEntidade(id);
-
         estabelecimento.alterarMoral(quantidade);
 
-        repository.save(estabelecimento);
-
+        estabelecimentoRepository.save(estabelecimento);
         return converterParaDTO(estabelecimento);
     }
 
-    /*
-     * =========================
-     * ALTERAR DINHEIRO
-     * =========================
-     */
     @Transactional
     public EstabelecimentoDTO alterarDinheiro(Long id, double valor) {
 
         Estabelecimento estabelecimento = buscarEntidade(id);
-
         estabelecimento.alterarDinheiro(valor);
 
-        repository.save(estabelecimento);
-
+        estabelecimentoRepository.save(estabelecimento);
         return converterParaDTO(estabelecimento);
     }
 
     /*
      * =========================
-     * DELETAR
+     * FOTO
      * =========================
      */
+
     @Transactional
-    public void deletar(Long id) {
-
-        Estabelecimento estabelecimento = buscarEntidade(id);
-
-        repository.delete(estabelecimento);
-    }
-
-    /*
-     * =========================
-     * ADICIONAR FOTO
-     * =========================
-     */
-    @Transactional
-    public EstabelecimentoDTO adicionarFoto(
-            Long estabelecimentoId,
-            MultipartFile file
-    ) {
+    public EstabelecimentoDTO adicionarFoto(Long estabelecimentoId, MultipartFile file) {
 
         Estabelecimento estabelecimento = buscarEntidade(estabelecimentoId);
 
-        String imageUrl = cloudinaryService.uploadFile(file);
+        String url = cloudinaryService.uploadFile(file);
 
-        FotoEstabelecimento foto = estabelecimento.getFotos();
+        FotoEstabelecimento foto = new FotoEstabelecimento();
+        foto.setImageUrl(url);
+        foto.setPrincipal(false);
+        foto.setEstabelecimento(estabelecimento);
 
-        if (foto == null) {
+        estabelecimento.getFotos().add(foto);
 
-            foto = new FotoEstabelecimento();
-
-            foto.setEstabelecimento(estabelecimento);
-
-            estabelecimento.setFotos(foto);
-        }
-
-        foto.setImageUrl(imageUrl);
-
-        repository.save(estabelecimento);
+        estabelecimentoRepository.save(estabelecimento);
 
         return converterParaDTO(estabelecimento);
     }
 
     /*
      * =========================
-     * REGISTRAR MOVIMENTAÇÃO
+     * AMBIENTE
      * =========================
      */
+
     @Transactional
-    public void registrarMovimentacao(
-            Long estabelecimentoId,
-            RegistrarMovimentacaoDTO dto
-    ) {
+    public AmbienteEstabelecimentoDTO criarAmbiente(Long estabelecimentoId, AmbienteEstabelecimento ambiente) {
 
-        Estabelecimento estabelecimento = repository
-                .findById(estabelecimentoId)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Estabelecimento não encontrado."));
+        Estabelecimento estabelecimento = buscarEntidade(estabelecimentoId);
 
+        ambiente.setEstabelecimento(estabelecimento);
+
+        AmbienteEstabelecimento salvo = ambienteRepository.save(ambiente);
+
+        return mapAmbienteToDTO(salvo);
+    }
+
+    public List<AmbienteEstabelecimentoDTO> listarAmbientes(Long estabelecimentoId) {
+        return ambienteRepository.findByEstabelecimentoId(estabelecimentoId)
+                .stream()
+                .map(this::mapAmbienteToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public AmbienteEstabelecimentoDTO buscarAmbiente(Long id) {
+        return mapAmbienteToDTO(buscarAmbienteEntity(id));
+    }
+
+    @Transactional
+    public AmbienteEstabelecimentoDTO atualizarAmbiente(Long id, AmbienteEstabelecimento dto) {
+
+        AmbienteEstabelecimento ambiente = buscarAmbienteEntity(id);
+
+        ambiente.setNome(dto.getNome());
+        ambiente.setDescricao(dto.getDescricao());
+        ambiente.setTipo(dto.getTipo());
+
+        return mapAmbienteToDTO(ambienteRepository.save(ambiente));
+    }
+
+    @Transactional
+    public void deletarAmbiente(Long id) {
+        ambienteRepository.deleteById(id);
+    }
+
+    /*
+     * =========================
+     * MOVIMENTAÇÃO / ESTATÍSTICAS
+     * =========================
+     */
+
+    @Transactional
+    public void registrarMovimentacao(Long estabelecimentoId, RegistrarMovimentacaoDTO dto) {
+
+        Estabelecimento estabelecimento = estabelecimentoRepository.findById(estabelecimentoId)
+                .orElseThrow(() -> new EntityNotFoundException("Estabelecimento não encontrado."));
 
         int impactoMoral = dto.getImpactoMoral();
 
-        /*
-         * VALIDAÇÃO
-         */
         if (impactoMoral > 100 || impactoMoral < -100) {
-
-            throw new IllegalArgumentException(
-                    "Impacto moral inválido. Limite permitido: -100 até 100."
-            );
+            throw new IllegalArgumentException("Impacto moral inválido. Limite: -100 até 100.");
         }
 
-        /*
-         * CRIA MOVIMENTAÇÃO
-         */
         MovimentacaoEstabelecimento movimentacao =
                 MovimentacaoEstabelecimento.builder()
                         .estabelecimento(estabelecimento)
@@ -342,22 +323,21 @@ public class EstabelecimentoService {
 
         movimentacaoRepository.save(movimentacao);
 
-        /*
-         * ALTERA MORAL
-         */
         estabelecimento.alterarMoral(impactoMoral);
-
-        /*
-         * ESTATÍSTICA
-         */
         estabelecimento.registrarMovimentacao();
 
-        repository.save(estabelecimento);
+        estabelecimentoRepository.save(estabelecimento);
     }
+
+    @Transactional
+    public void deletar(Long id) {
+        Estabelecimento estabelecimento = buscarEntidade(id);
+        estabelecimentoRepository.delete(estabelecimento);
+    }
+
     public EstatisticasEstabelecimentoDTO buscarEstatisticas(Long estabelecimentoId) {
 
-        Estabelecimento estabelecimento = repository.findById(estabelecimentoId)
-                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+        Estabelecimento estabelecimento = buscarEntidade(estabelecimentoId);
 
         List<Object[]> resultado =
                 movimentacaoRepository.contarMovimentacoesPorTipo(estabelecimentoId);
@@ -378,8 +358,7 @@ public class EstabelecimentoService {
                 movimentacaoRepository.somarImpactoMoral(estabelecimentoId);
 
         MovimentacaoEstabelecimento ultima =
-                movimentacaoRepository
-                        .findTopByEstabelecimentoIdOrderByDataMovimentacaoDesc(estabelecimentoId);
+                movimentacaoRepository.findTopByEstabelecimentoIdOrderByDataMovimentacaoDesc(estabelecimentoId);
 
         return new EstatisticasEstabelecimentoDTO(
                 estabelecimento.getTotalMovimentacoes(),
@@ -388,5 +367,4 @@ public class EstabelecimentoService {
                 ultima != null ? ultima.getDataMovimentacao() : null
         );
     }
-
 }

@@ -1,8 +1,7 @@
 package com.Rpg.sistem_mayfair.controller;
 
-import com.Rpg.sistem_mayfair.dto.estabelecimento.EstabelecimentoDTO;
-import com.Rpg.sistem_mayfair.dto.estabelecimento.EstatisticasEstabelecimentoDTO;
-import com.Rpg.sistem_mayfair.dto.estabelecimento.RegistrarMovimentacaoDTO;
+import com.Rpg.sistem_mayfair.domain.estabelecimento.AmbienteEstabelecimento;
+import com.Rpg.sistem_mayfair.dto.estabelecimento.*;
 import com.Rpg.sistem_mayfair.service.estabelecimetno.EstabelecimentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,104 +21,80 @@ public class EstabelecimentoController {
 
     /*
      * =========================
-     * CRIAR
+     * ESTABELECIMENTO - CRUD
      * =========================
      */
+
     @PostMapping
     public ResponseEntity<EstabelecimentoDTO> criar(
             @RequestBody @Valid EstabelecimentoDTO dto
     ) {
-
-        EstabelecimentoDTO novoEstabelecimento = service.criar(dto);
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(novoEstabelecimento);
+                .body(service.criar(dto));
     }
 
-    /*
-     * =========================
-     * ATUALIZAR
-     * =========================
-     */
     @PutMapping("/{id}")
     public ResponseEntity<EstabelecimentoDTO> atualizar(
             @PathVariable Long id,
             @RequestBody @Valid EstabelecimentoDTO dto
     ) {
-
-        EstabelecimentoDTO atualizado = service.atualizar(id, dto);
-
-        return ResponseEntity.ok(atualizado);
+        return ResponseEntity.ok(service.atualizar(id, dto));
     }
 
-    /*
-     * =========================
-     * LISTAR TODOS
-     * =========================
-     */
     @GetMapping
     public ResponseEntity<List<EstabelecimentoDTO>> listarTodos() {
-
         return ResponseEntity.ok(service.listarTodos());
     }
 
-    /*
-     * =========================
-     * BUSCAR POR ID
-     * =========================
-     */
     @GetMapping("/{id}")
     public ResponseEntity<EstabelecimentoDTO> buscarPorId(
             @PathVariable Long id
     ) {
-
         return ResponseEntity.ok(service.buscarPorIdDTO(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(
+            @PathVariable Long id
+    ) {
+        service.deletarAmbiente(id);
+        return ResponseEntity.noContent().build();
     }
 
     /*
      * =========================
-     * ALTERAR MORAL
+     * MORAL / DINHEIRO
      * =========================
      */
+
     @PatchMapping("/{id}/moral")
     public ResponseEntity<EstabelecimentoDTO> alterarMoral(
             @PathVariable Long id,
             @RequestParam int quantidade
     ) {
-
-        return ResponseEntity.ok(
-                service.alterarMoral(id, quantidade)
-        );
+        return ResponseEntity.ok(service.alterarMoral(id, quantidade));
     }
 
-    /*
-     * =========================
-     * ALTERAR DINHEIRO
-     * =========================
-     */
     @PatchMapping("/{id}/dinheiro")
     public ResponseEntity<EstabelecimentoDTO> alterarDinheiro(
             @PathVariable Long id,
             @RequestParam double valor
     ) {
-
-        return ResponseEntity.ok(
-                service.alterarDinheiro(id, valor)
-        );
+        return ResponseEntity.ok(service.alterarDinheiro(id, valor));
     }
 
     /*
      * =========================
-     * REGISTRAR MOVIMENTAÇÃO
+     * MOVIMENTAÇÕES
      * =========================
      */
+
     @PostMapping("/{id}/movimentacoes")
     public ResponseEntity<Void> registrarMovimentacao(
             @PathVariable Long id,
             @RequestBody @Valid RegistrarMovimentacaoDTO dto
     ) {
-
         service.registrarMovimentacao(id, dto);
 
         return ResponseEntity
@@ -127,44 +102,72 @@ public class EstabelecimentoController {
                 .build();
     }
 
-    /*
-     * =========================
-     * DELETAR
-     * =========================
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(
+    @GetMapping("/{id}/estatisticas")
+    public ResponseEntity<EstatisticasEstabelecimentoDTO> buscarEstatisticas(
             @PathVariable Long id
     ) {
-
-        service.deletar(id);
-
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(service.buscarEstatisticas(id));
     }
 
     /*
      * =========================
-     * ADICIONAR FOTO
+     * FOTOS
      * =========================
      */
+
     @PostMapping("/{id}/fotos")
     public ResponseEntity<EstabelecimentoDTO> adicionarFoto(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file
     ) {
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(service.adicionarFoto(id, file));
     }
 
-    @GetMapping("/{id}/estatisticas")
-    public ResponseEntity<EstatisticasEstabelecimentoDTO> buscarEstatisticas(
+    /*
+     * =========================
+     * AMBIENTES
+     * =========================
+     */
+
+    @PostMapping("/{id}/ambientes")
+    public ResponseEntity<AmbienteEstabelecimentoDTO> criarAmbiente(
+            @PathVariable Long id,
+            @RequestBody AmbienteEstabelecimento ambiente
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(service.criarAmbiente(id, ambiente));
+    }
+
+    @GetMapping("/{id}/ambientes")
+    public ResponseEntity<List<AmbienteEstabelecimentoDTO>> listarAmbientes(
             @PathVariable Long id
     ) {
+        return ResponseEntity.ok(service.listarAmbientes(id));
+    }
 
-        return ResponseEntity.ok(
-                service.buscarEstatisticas(id)
-        );
+    @GetMapping("/ambientes/{ambienteId}")
+    public ResponseEntity<AmbienteEstabelecimentoDTO> buscarAmbiente(
+            @PathVariable Long ambienteId
+    ) {
+        return ResponseEntity.ok(service.buscarAmbiente(ambienteId));
+    }
+
+    @PutMapping("/ambientes/{ambienteId}")
+    public ResponseEntity<AmbienteEstabelecimentoDTO> atualizarAmbiente(
+            @PathVariable Long ambienteId,
+            @RequestBody AmbienteEstabelecimento dto
+    ) {
+        return ResponseEntity.ok(service.atualizarAmbiente(ambienteId, dto));
+    }
+
+    @DeleteMapping("/ambientes/{ambienteId}")
+    public ResponseEntity<Void> deletarAmbiente(
+            @PathVariable Long ambienteId
+    ) {
+        service.deletarAmbiente(ambienteId);
+        return ResponseEntity.noContent().build();
     }
 }

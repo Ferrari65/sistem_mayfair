@@ -109,8 +109,12 @@ public class Estabelecimento {
     /*
      * FOTO PRINCIPAL (1:1)
      */
-    @OneToOne(mappedBy = "estabelecimento", cascade = CascadeType.ALL, orphanRemoval = true)
-    private FotoEstabelecimento fotos;
+    @OneToMany(
+            mappedBy = "estabelecimento",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<FotoEstabelecimento> fotos = new ArrayList<>();
 
     /*
      * =========================

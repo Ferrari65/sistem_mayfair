@@ -37,5 +37,6 @@ public class EstabelecimentoDTO {
     /*
      * MÍDIA (Sincronizado com o Front-end)
      */
-    private List<String> fotos;
+    private List<FotoEstabelecimentoDTO> fotos;
+    private List<AmbienteEstabelecimentoDTO> ambientes;
 }

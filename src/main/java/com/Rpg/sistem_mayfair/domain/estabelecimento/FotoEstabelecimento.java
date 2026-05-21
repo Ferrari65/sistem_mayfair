@@ -19,8 +19,13 @@ public class FotoEstabelecimento {
 
     private String imageUrl;
 
+    /*
+     * FOTO PRINCIPAL?
+     */
+    private Boolean principal = false;
+
     @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "estabelecimento_id", unique = true)
+    @ManyToOne
+    @JoinColumn(name = "estabelecimento_id")
     private Estabelecimento estabelecimento;
 }
