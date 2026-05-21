@@ -62,7 +62,7 @@ public class EstabelecimentoController {
     public ResponseEntity<Void> deletar(
             @PathVariable Long id
     ) {
-        service.deletarAmbiente(id);
+        service.deletar(id);
         return ResponseEntity.noContent().build();
     }
 
