@@ -3,6 +3,7 @@ package com.Rpg.sistem_mayfair.service;
 import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.domain.Player;
 import com.Rpg.sistem_mayfair.dto.PlayerDTO;
+import com.Rpg.sistem_mayfair.dto.personagem.PersonagemResumoDTO;
 import com.Rpg.sistem_mayfair.repository.PlayerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -113,8 +114,19 @@ public class PlayerService {
 
         PlayerDTO dto = new PlayerDTO();
 
+        dto.setId(player.getId());
         dto.setNome(player.getNome());
         dto.setTelefoneUltimos4(player.getTelefoneUltimos4());
+
+        dto.setPersonagens(
+                player.getPersonagens()
+                        .stream()
+                        .map(personagem -> new PersonagemResumoDTO(
+                                personagem.getId_personagens(),
+                                personagem.getNome()
+                        ))
+                        .toList()
+        );
 
         return dto;
     }
