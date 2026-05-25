@@ -117,17 +117,16 @@ public class PlayerService {
         dto.setId(player.getId());
         dto.setNome(player.getNome());
         dto.setTelefoneUltimos4(player.getTelefoneUltimos4());
-
         dto.setPersonagens(
                 player.getPersonagens()
                         .stream()
                         .map(personagem -> new PersonagemResumoDTO(
                                 personagem.getId_personagens(),
-                                personagem.getNome()
+                                personagem.getNome(),
+                                personagem.getImageUrl()
                         ))
                         .toList()
         );
-
         return dto;
     }
 }

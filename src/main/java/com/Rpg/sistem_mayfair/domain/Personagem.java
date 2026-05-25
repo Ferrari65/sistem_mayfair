@@ -3,6 +3,7 @@ package com.Rpg.sistem_mayfair.domain;
 import com.Rpg.sistem_mayfair.domain.Enum.Genero;
 import com.Rpg.sistem_mayfair.domain.Enum.StatusCivil;
 import com.Rpg.sistem_mayfair.domain.jornal.JornalPostagem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;

@@ -131,7 +131,8 @@ public class JornalPostagemService {
                         .stream()
                         .map(personagem -> new PersonagemResumoDTO(
                                 personagem.getId_personagens(),
-                                personagem.getNome()
+                                personagem.getNome(),
+                                personagem.getImageUrl()
                         ))
                         .toList();
 

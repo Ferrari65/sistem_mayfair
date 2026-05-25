@@ -1,5 +1,6 @@
 package com.Rpg.sistem_mayfair.dto;
 
+import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.dto.personagem.PersonagemResumoDTO;
 
 import java.util.List;
