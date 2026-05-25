@@ -89,7 +89,6 @@ public record PersonagemResponseDTO(
                         ? personagem.getParceiro().getNome()
                         : null,
 
-                // ✅ CORREÇÃO PRINCIPAL: serializa o histórico real
                 personagem.getHistoricoPrestigio() != null
                         ? personagem.getHistoricoPrestigio()
                         .stream()

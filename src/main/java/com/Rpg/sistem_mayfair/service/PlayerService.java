@@ -19,38 +19,48 @@ public class PlayerService {
     }
 
     // =========================
-    // Criar player
+    // CRIAR PLAYER
     // =========================
-    public Player criar(PlayerDTO dto) {
+    public PlayerDTO criar(PlayerDTO dto) {
 
         Player player = new Player();
 
         player.setNome(dto.getNome());
         player.setTelefoneUltimos4(dto.getTelefoneUltimos4());
 
-        return repository.save(player);
+        Player salvo = repository.save(player);
+
+        return toDTO(salvo);
     }
 
     // =========================
-    // Listar todos
+    // LISTAR TODOS
     // =========================
-    public List<Player> listarTodos() {
-        return repository.findAll();
+    public List<PlayerDTO> listarTodos() {
+
+        return repository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     // =========================
-    // Buscar por ID
+    // BUSCAR POR ID
     // =========================
-    public Player buscarPorId(Long id) {
+    public PlayerDTO buscarPorId(Long id) {
 
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Player não encontrado"));
+        Player player = repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Player não encontrado")
+                );
+
+        return toDTO(player);
     }
 
     // =========================
     // UPDATE
     // =========================
-    public Player atualizar(Long id, PlayerDTO dto) {
+    public PlayerDTO atualizar(Long id, PlayerDTO dto) {
 
         Player player = repository.findById(id)
                 .orElseThrow(() ->
@@ -66,7 +76,9 @@ public class PlayerService {
             player.setTelefoneUltimos4(dto.getTelefoneUltimos4());
         }
 
-        return repository.save(player);
+        Player atualizado = repository.save(player);
+
+        return toDTO(atualizado);
     }
 
     // =========================
@@ -92,5 +104,18 @@ public class PlayerService {
         // DELETA PLAYER
         // =========================
         repository.delete(player);
+    }
+
+    // =========================
+    // CONVERTER ENTITY -> DTO
+    // =========================
+    private PlayerDTO toDTO(Player player) {
+
+        PlayerDTO dto = new PlayerDTO();
+
+        dto.setNome(player.getNome());
+        dto.setTelefoneUltimos4(player.getTelefoneUltimos4());
+
+        return dto;
     }
 }

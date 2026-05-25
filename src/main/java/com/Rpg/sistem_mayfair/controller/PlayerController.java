@@ -20,52 +20,38 @@ public class PlayerController {
         this.service = service;
     }
 
-    // =========================
-    // POST - Criar player
-    // =========================
     @PostMapping
-    public ResponseEntity<Player> criar(@RequestBody PlayerDTO dto) {
+    public ResponseEntity<PlayerDTO> criar(@RequestBody PlayerDTO dto) {
 
-        Player player = service.criar(dto);
+        PlayerDTO player = service.criar(dto);
 
         return ResponseEntity.ok(player);
     }
 
-    // =========================
-    // GET - Listar todos
-    // =========================
     @GetMapping
-    public ResponseEntity<List<Player>> listarTodos() {
+    public ResponseEntity<List<PlayerDTO>> listarTodos() {
 
-        List<Player> players = service.listarTodos();
+        List<PlayerDTO> players = service.listarTodos();
 
         return ResponseEntity.ok(players);
     }
 
-    // =========================
-    // GET - Buscar por ID
-    // =========================
     @GetMapping("/{id}")
-    public ResponseEntity<Player> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<PlayerDTO> buscarPorId(@PathVariable Long id) {
 
-        Player player = service.buscarPorId(id);
+        PlayerDTO player = service.buscarPorId(id);
 
         return ResponseEntity.ok(player);
     }
 
-    // =========================
-    // UPDATE
-    // =========================
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public Player atualizar(
+    public PlayerDTO atualizar(
             @PathVariable Long id,
             @RequestBody PlayerDTO dto
     ) {
 
         return service.atualizar(id, dto);
     }
-
     // =========================
     // DELETE
     // =========================
