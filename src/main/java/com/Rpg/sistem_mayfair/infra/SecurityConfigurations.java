@@ -110,6 +110,17 @@ public class SecurityConfigurations {
                          * RESTANTE AUTENTICADO
                          * =========================
                          */
+                        .requestMatchers(HttpMethod.POST, "/eventos/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT, "/eventos/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/eventos/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/eventos/**")
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
 
