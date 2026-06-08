@@ -28,7 +28,15 @@ public class Familia {
     private String matriarca;
     private String patriarca;
 
+    private Integer limiteVagas;
+
     @OneToMany(mappedBy = "familia")
     @JsonIgnore
     private List<Personagem> personagens;
+
+    @Transient
+    public Integer getVagasDisponiveis() {
+        int ocupadas = personagens != null ? personagens.size() : 0;
+        return limiteVagas - ocupadas;
+    }
 }

@@ -6,5 +6,6 @@ public record FamiliaRequestDTO(
         String dilema,
         String photoUrl,
         String matriarca,
-        String patriarca
+        String patriarca,
+        Integer limiteVagas
 ) { }

@@ -38,6 +38,7 @@ public class FamiliaController {
         familia.setPhotoUrl(data.photoUrl());
         familia.setMatriarca(data.matriarca());
         familia.setPatriarca(data.patriarca());
+        familia.setLimiteVagas(data.limiteVagas());
 
         return familiaRepository.save(familia);
     }
@@ -72,6 +73,7 @@ public class FamiliaController {
         familia.setPhotoUrl(dto.photoUrl());
         familia.setMatriarca(dto.matriarca());
         familia.setPatriarca(dto.patriarca());
+        familia.setLimiteVagas(dto.limiteVagas());
 
         return familiaRepository.save(familia);
     }
