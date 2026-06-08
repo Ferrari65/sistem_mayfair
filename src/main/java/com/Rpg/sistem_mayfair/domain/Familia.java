@@ -37,6 +37,6 @@ public class Familia {
     @Transient
     public Integer getVagasDisponiveis() {
         int ocupadas = personagens != null ? personagens.size() : 0;
-        return limiteVagas - ocupadas;
+        return (limiteVagas != null ? limiteVagas : 0) - ocupadas;
     }
 }
