@@ -3,6 +3,7 @@ package com.Rpg.sistem_mayfair.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,7 +19,7 @@ public class Player {
 
     @OneToMany(mappedBy = "player")
     @JsonManagedReference
-    private List<Personagem> personagens;
+    private List<Personagem> personagens = new ArrayList<>();
 
     public Player() {
     }

@@ -8,6 +8,7 @@ import com.Rpg.sistem_mayfair.repository.PlayerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -68,7 +69,6 @@ public class PlayerService {
                         new RuntimeException("Player não encontrado")
                 );
 
-        // Atualiza apenas se vier valor
         if (dto.getNome() != null) {
             player.setNome(dto.getNome());
         }
@@ -93,22 +93,17 @@ public class PlayerService {
                         new RuntimeException("Player não encontrado")
                 );
 
-        // =========================
-        // REMOVE VÍNCULO DOS PERSONAGENS
-        // =========================
-        for (Personagem personagem : player.getPersonagens()) {
-
-            personagem.setPlayer(null);
+        if (player.getPersonagens() != null) {
+            for (Personagem personagem : player.getPersonagens()) {
+                personagem.setPlayer(null);
+            }
         }
 
-        // =========================
-        // DELETA PLAYER
-        // =========================
         repository.delete(player);
     }
 
     // =========================
-    // CONVERTER ENTITY -> DTO
+    // ENTITY -> DTO
     // =========================
     private PlayerDTO toDTO(Player player) {
 
@@ -117,9 +112,15 @@ public class PlayerService {
         dto.setId(player.getId());
         dto.setNome(player.getNome());
         dto.setTelefoneUltimos4(player.getTelefoneUltimos4());
+
+        List<Personagem> personagens = player.getPersonagens();
+
+        if (personagens == null) {
+            personagens = Collections.emptyList();
+        }
+
         dto.setPersonagens(
-                player.getPersonagens()
-                        .stream()
+                personagens.stream()
                         .map(personagem -> new PersonagemResumoDTO(
                                 personagem.getId_personagens(),
                                 personagem.getNome(),
@@ -127,6 +128,7 @@ public class PlayerService {
                         ))
                         .toList()
         );
+
         return dto;
     }
 }
