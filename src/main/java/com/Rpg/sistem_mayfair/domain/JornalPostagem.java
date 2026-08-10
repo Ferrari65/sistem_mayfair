@@ -1,6 +1,6 @@
-package com.Rpg.sistem_mayfair.domain.jornal;
+package com.Rpg.sistem_mayfair.domain;
 
-import com.Rpg.sistem_mayfair.domain.Personagem;
+
 import jakarta.persistence.*;
 import lombok.*;
 

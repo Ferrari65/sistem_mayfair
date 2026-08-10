@@ -1,6 +1,6 @@
 package com.Rpg.sistem_mayfair.repository.jornal;
 
-import com.Rpg.sistem_mayfair.domain.jornal.JornalPostagem;
+import com.Rpg.sistem_mayfair.domain.JornalPostagem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JornalPostagemRepository

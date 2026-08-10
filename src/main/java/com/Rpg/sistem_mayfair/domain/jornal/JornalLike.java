@@ -20,5 +20,5 @@ public class JornalLike {
 
     @ManyToOne
     @JoinColumn(name = "postagem_id")
-    private com.Rpg.sistem_mayfair.domain.jornal.JornalPostagem postagem;
+    private com.Rpg.sistem_mayfair.domain.JornalPostagem postagem;
 }
