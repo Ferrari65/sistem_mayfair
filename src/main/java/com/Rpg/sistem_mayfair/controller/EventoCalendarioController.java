@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/eventos")
+@RequestMapping("/eventos-calendario")
 public class EventoCalendarioController {
 
     private final EventoCalendarioService service;
