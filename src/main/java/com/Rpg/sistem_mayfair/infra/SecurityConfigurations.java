@@ -31,10 +31,13 @@ public class SecurityConfigurations {
         return http
 
                 .csrf(csrf -> csrf.disable())
+
                 .cors(Customizer.withDefaults())
 
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
                 )
 
                 .authorizeHttpRequests(auth -> auth
@@ -55,8 +58,11 @@ public class SecurityConfigurations {
                                 "/personagens/debug-auth"
                         ).permitAll()
 
+
                         /*
+                         * =========================
                          * GETS PÚBLICOS
+                         * =========================
                          */
                         .requestMatchers(
                                 HttpMethod.GET,
@@ -69,8 +75,11 @@ public class SecurityConfigurations {
                                 "/jornal/**"
                         ).permitAll()
 
+
                         /*
+                         * =========================
                          * REAÇÕES / LIKES
+                         * =========================
                          */
                         .requestMatchers(
                                 HttpMethod.POST,
@@ -78,73 +87,159 @@ public class SecurityConfigurations {
                                 "/jornal/*/reacao"
                         ).permitAll()
 
+
                         /*
+                         * =========================
                          * FOTO ESTABELECIMENTO
+                         * =========================
                          */
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/estabelecimentos/*/fotos"
                         ).permitAll()
 
+
                         /*
                          * =========================
-                         * ADMIN ONLY
+                         * ADMIN - PERSONAGENS
                          * =========================
                          */
-                        .requestMatchers(HttpMethod.POST, "/personagens/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/personagens/**"
+                        ).hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.PUT, "/personagens/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/personagens/**"
+                        ).hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.DELETE, "/personagens/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/personagens/**"
+                        ).hasRole("ADMIN")
 
+
+                        /*
+                         * =========================
+                         * ADMIN - MOVIMENTAÇÕES
+                         * =========================
+                         */
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/estabelecimentos/*/movimentacoes"
                         ).hasRole("ADMIN")
 
+
                         /*
                          * =========================
-                         * RESTANTE AUTENTICADO
+                         * EVENTOS
                          * =========================
                          */
-                        .requestMatchers(HttpMethod.POST, "/eventos/**")
-                        .hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.PUT, "/eventos/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/eventos/**"
+                        ).hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.DELETE, "/eventos/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/eventos/**"
+                        ).hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/eventos/**")
-                        .permitAll()
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/eventos/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/eventos/**"
+                        ).permitAll()
+
+
+                        /*
+                         * =========================
+                         * EVENTOS DO CALENDÁRIO
+                         * =========================
+                         */
+
+                        // Qualquer pessoa pode visualizar
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/eventos-calendario/**"
+                        ).permitAll()
+
+                        // Apenas ADMIN pode cadastrar
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/eventos-calendario/**"
+                        ).hasRole("ADMIN")
+
+                        // Apenas ADMIN pode atualizar
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/eventos-calendario/**"
+                        ).hasRole("ADMIN")
+
+                        // Apenas ADMIN pode excluir
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/eventos-calendario/**"
+                        ).hasRole("ADMIN")
+
+
+                        /*
+                         * =========================
+                         * RESTANTE
+                         * =========================
+                         */
                         .anyRequest().authenticated()
                 )
 
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(
+                        jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                )
 
                 .build();
     }
 
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration =
+                new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
-        ));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedOriginPatterns(
+                List.of("*")
+        );
+
+        configuration.setAllowedMethods(
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "PATCH",
+                        "OPTIONS"
+                )
+        );
+
+        configuration.setAllowedHeaders(
+                List.of("*")
+        );
+
         configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration(
+                "/**",
+                configuration
+        );
 
         return source;
     }
