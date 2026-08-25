@@ -5,6 +5,7 @@ import com.Rpg.sistem_mayfair.dto.EventoDTO;
 import com.Rpg.sistem_mayfair.repository.EventoRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -38,7 +39,12 @@ public class EventoService {
 
         evento.setTitulo(dto.titulo());
         evento.setDescricao(dto.descricao());
-        evento.setFinalizado(dto.finalizado());
+
+        // Novo evento começa como não finalizado
+        evento.setFinalizado(false);
+
+        // A data de criação será preenchida automaticamente
+        // pelo @PrePersist da entidade.
 
         repository.save(evento);
 
@@ -52,7 +58,23 @@ public class EventoService {
 
         evento.setTitulo(dto.titulo());
         evento.setDescricao(dto.descricao());
-        evento.setFinalizado(dto.finalizado());
+
+        /*
+         * Verifica se o evento está sendo finalizado agora.
+         */
+        if (Boolean.TRUE.equals(dto.finalizado())
+                && !Boolean.TRUE.equals(evento.getFinalizado())) {
+
+            evento.setFinalizado(true);
+            evento.setFinalizadoAt(LocalDateTime.now());
+
+        } else if (Boolean.FALSE.equals(dto.finalizado())) {
+
+            // Caso o evento seja reaberto
+            evento.setFinalizado(false);
+            evento.setFinalizadoAt(null);
+
+        }
 
         repository.save(evento);
 
@@ -73,7 +95,9 @@ public class EventoService {
                 evento.getId(),
                 evento.getTitulo(),
                 evento.getDescricao(),
-                evento.getFinalizado()
+                evento.getFinalizado(),
+                evento.getCreatedAt(),
+                evento.getFinalizadoAt()
         );
     }
 }

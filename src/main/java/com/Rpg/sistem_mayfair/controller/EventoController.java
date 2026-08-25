@@ -1,6 +1,5 @@
 package com.Rpg.sistem_mayfair.controller;
 
-
 import com.Rpg.sistem_mayfair.dto.EventoDTO;
 import com.Rpg.sistem_mayfair.service.EventoService;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +41,9 @@ public class EventoController {
         );
     }
 
+    /*
+     * CRIAR EVENTO
+     */
     @PostMapping
     public ResponseEntity<EventoDTO> criar(
             @RequestBody EventoDTO dto
@@ -52,6 +54,9 @@ public class EventoController {
         );
     }
 
+    /*
+     * ATUALIZAR EVENTO
+     */
     @PutMapping("/{id}")
     public ResponseEntity<EventoDTO> atualizar(
             @PathVariable Long id,
@@ -63,6 +68,9 @@ public class EventoController {
         );
     }
 
+    /*
+     * DELETAR EVENTO
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable Long id
