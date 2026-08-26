@@ -11,6 +11,7 @@ import com.Rpg.sistem_mayfair.repository.PersonagemRepository;
 import com.Rpg.sistem_mayfair.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,9 +23,11 @@ public class PersonagemService {
     private final FamiliaRepository familiaRepository;
     private final PlayerRepository playerRepository;
 
-    // =========================
-    // CREATE PERSONAGEM
-    // =========================
+
+    // ============================================================
+    // CRIAR PERSONAGEM
+    // ============================================================
+
     public Personagem criar(PersonagemDTO dto) {
 
         Personagem personagem = new Personagem();
@@ -39,76 +42,68 @@ public class PersonagemService {
                         : 20
         );
 
-        // =========================
-        // GENERO
-        // =========================
         personagem.setGenero(
                 dto.getGenero() != null
                         ? dto.getGenero()
                         : Genero.NAO_INFORMADO
         );
 
-        // =========================
-        // STATUS CIVIL
-        // =========================
         personagem.setStatusCivil(
                 dto.getStatusCivil() != null
                         ? dto.getStatusCivil()
                         : StatusCivil.SOLTEIRO
         );
 
-        // =========================
+
         // PARCEIRO
-        // =========================
         if (dto.getParceiroId() != null) {
 
             Personagem parceiro = personagemRepository
                     .findById(dto.getParceiroId())
                     .orElseThrow(() ->
-                            new RuntimeException("Parceiro não encontrado")
+                            new RuntimeException(
+                                    "Parceiro não encontrado"
+                            )
                     );
 
             personagem.setParceiro(parceiro);
         }
 
-        // =========================
-        // DESCRIÇÃO
-        // =========================
+
         personagem.setDescricao(dto.getDescription());
 
-        // =========================
-        // SHAPE
-        // =========================
         personagem.setShape(dto.getShape());
 
-        // =========================
-        // IMAGE
-        // =========================
         personagem.setImageUrl(dto.getImageUrl());
 
-        // =========================
-        // FAMILY
-        // =========================
-        if (dto.getFamilyId() != null && dto.getFamilyId() > 0) {
+
+        // FAMÍLIA
+        if (dto.getFamilyId() != null &&
+                dto.getFamilyId() > 0) {
 
             Familia familia = familiaRepository
                     .findById(dto.getFamilyId())
                     .orElseThrow(() ->
-                            new RuntimeException("Família não encontrada")
+                            new RuntimeException(
+                                    "Família não encontrada"
+                            )
                     );
 
             personagem.setFamilia(familia);
 
         } else {
+
             personagem.setFamilia(null);
         }
 
         return personagemRepository.save(personagem);
     }
 
-    // =========================
+
+    // ============================================================
     // LISTAR PERSONAGENS
-    // =========================
+    // ============================================================
+
     public List<PersonagemDTO> listar(boolean isAdmin) {
 
         return personagemRepository.findAll()
@@ -117,21 +112,30 @@ public class PersonagemService {
                 .toList();
     }
 
-    // =========================
+
+    // ============================================================
     // ATRIBUIR PLAYER
-    // =========================
-    public Personagem atribuirPlayer(Long personagemId, Long playerId) {
+    // ============================================================
+
+    public Personagem atribuirPlayer(
+            Long personagemId,
+            Long playerId
+    ) {
 
         Personagem personagem = personagemRepository
                 .findById(personagemId)
                 .orElseThrow(() ->
-                        new RuntimeException("Personagem não encontrado")
+                        new RuntimeException(
+                                "Personagem não encontrado"
+                        )
                 );
 
         Player player = playerRepository
                 .findById(playerId)
                 .orElseThrow(() ->
-                        new RuntimeException("Player não encontrado")
+                        new RuntimeException(
+                                "Player não encontrado"
+                        )
                 );
 
         personagem.setPlayer(player);
@@ -139,10 +143,15 @@ public class PersonagemService {
         return personagemRepository.save(personagem);
     }
 
-    // =========================
+
+    // ============================================================
     // ENTITY -> DTO
-    // =========================
-    private PersonagemDTO toDTO(Personagem p, boolean isAdmin) {
+    // ============================================================
+
+    private PersonagemDTO toDTO(
+            Personagem p,
+            boolean isAdmin
+    ) {
 
         PersonagemDTO dto = new PersonagemDTO();
 
@@ -154,36 +163,53 @@ public class PersonagemService {
         dto.setImageUrl(p.getImageUrl());
 
         if (p.getFamilia() != null) {
-            dto.setFamilyId(p.getFamilia().getId());
+
+            dto.setFamilyId(
+                    p.getFamilia().getId()
+            );
         }
 
         dto.setGenero(p.getGenero());
+
         dto.setStatusCivil(p.getStatusCivil());
 
         if (p.getParceiro() != null) {
-            dto.setParceiroId(p.getParceiro().getId_personagens());
+
+            dto.setParceiroId(
+                    p.getParceiro().getId_personagens()
+            );
         }
 
-        // SHAPE (só admin vê)
         if (isAdmin) {
+
             dto.setShape(p.getShape());
+
         } else {
+
             dto.setShape(null);
         }
 
         return dto;
     }
 
-    // =========================
-    // ATUALIZAR (BLINDADO)
-    // =========================
-    public Personagem atualizar(Long id, PersonagemDTO dto) {
+
+    // ============================================================
+    // ATUALIZAR
+    // ============================================================
+
+    public Personagem atualizar(
+            Long id,
+            PersonagemDTO dto
+    ) {
 
         Personagem personagem = personagemRepository
                 .findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Personagem não encontrado")
+                        new RuntimeException(
+                                "Personagem não encontrado"
+                        )
                 );
+
 
         if (dto.getName() != null) {
             personagem.setNome(dto.getName());
@@ -202,7 +228,9 @@ public class PersonagemService {
         }
 
         if (dto.getDescription() != null) {
-            personagem.setDescricao(dto.getDescription());
+            personagem.setDescricao(
+                    dto.getDescription()
+            );
         }
 
         if (dto.getShape() != null) {
@@ -210,48 +238,145 @@ public class PersonagemService {
         }
 
         if (dto.getImageUrl() != null) {
-            personagem.setImageUrl(dto.getImageUrl());
+            personagem.setImageUrl(
+                    dto.getImageUrl()
+            );
         }
 
+
+        // FAMÍLIA
         if (dto.getFamilyId() != null) {
 
             Familia familia = familiaRepository
                     .findById(dto.getFamilyId())
                     .orElseThrow(() ->
-                            new RuntimeException("Família não encontrada")
+                            new RuntimeException(
+                                    "Família não encontrada"
+                            )
                     );
 
             personagem.setFamilia(familia);
         }
 
-        // =========================
-        // GENERO (SAFE)
-        // =========================
+
+        // GENERO
         if (dto.getGenero() != null) {
-            personagem.setGenero(dto.getGenero());
+
+            personagem.setGenero(
+                    dto.getGenero()
+            );
         }
 
-        // =========================
-        // STATUS CIVIL (SAFE)
-        // =========================
+
+        // STATUS CIVIL
         if (dto.getStatusCivil() != null) {
-            personagem.setStatusCivil(dto.getStatusCivil());
+
+            personagem.setStatusCivil(
+                    dto.getStatusCivil()
+            );
         }
 
-        // =========================
-        // PARCEIRO (SAFE)
-        // =========================
+
+        // PARCEIRO
         if (dto.getParceiroId() != null) {
 
             Personagem parceiro = personagemRepository
                     .findById(dto.getParceiroId())
                     .orElseThrow(() ->
-                            new RuntimeException("Parceiro não encontrado")
+                            new RuntimeException(
+                                    "Parceiro não encontrado"
+                            )
                     );
 
             personagem.setParceiro(parceiro);
         }
 
         return personagemRepository.save(personagem);
+    }
+
+
+    // ============================================================
+    // EXCLUIR PERSONAGEM
+    // ============================================================
+
+    @Transactional
+    public void deletar(Long id) {
+
+        // --------------------------------------------------------
+        // 1. BUSCAR PERSONAGEM
+        // --------------------------------------------------------
+
+        Personagem personagem = personagemRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Personagem não encontrado"
+                        )
+                );
+
+
+        // --------------------------------------------------------
+        // 2. REMOVER COMO PARCEIRO DE OUTROS PERSONAGENS
+        // --------------------------------------------------------
+
+        List<Personagem> relacionados =
+                personagemRepository
+                        .findByParceiro(personagem);
+
+        if (!relacionados.isEmpty()) {
+
+            for (Personagem outro : relacionados) {
+
+                outro.setParceiro(null);
+            }
+
+            personagemRepository.saveAll(
+                    relacionados
+            );
+        }
+
+
+        // --------------------------------------------------------
+        // 3. DESVINCULAR FAMÍLIA
+        // --------------------------------------------------------
+        //
+        // NÃO apagamos a família.
+        // Apenas removemos a referência do personagem.
+        // --------------------------------------------------------
+
+        personagem.setFamilia(null);
+
+
+        // --------------------------------------------------------
+        // 4. DESVINCULAR PLAYER
+        // --------------------------------------------------------
+        //
+        // NÃO apagamos o player.
+        // Apenas removemos a referência.
+        // --------------------------------------------------------
+
+        personagem.setPlayer(null);
+
+
+        // --------------------------------------------------------
+        // 5. SALVAR AS ALTERAÇÕES
+        // --------------------------------------------------------
+
+        personagemRepository.save(personagem);
+
+
+        // --------------------------------------------------------
+        // 6. EXCLUIR PERSONAGEM
+        // --------------------------------------------------------
+        //
+        // HistoricoPrestigio será excluído por:
+        //
+        // cascade = CascadeType.ALL
+        // orphanRemoval = true
+        //
+        // Jornais serão desvinculados pelo @PreRemove.
+        // --------------------------------------------------------
+
+        personagemRepository.delete(personagem);
     }
 }

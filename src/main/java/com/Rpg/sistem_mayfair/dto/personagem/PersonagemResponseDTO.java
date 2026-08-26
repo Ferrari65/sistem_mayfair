@@ -28,7 +28,6 @@ public record PersonagemResponseDTO(
 
 ) {
 
-    // DTO interno para cada entrada do histórico
     public record HistoricoResponseDTO(
             Long idHistorico,
             String descricao,

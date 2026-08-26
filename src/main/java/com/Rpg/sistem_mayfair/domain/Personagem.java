@@ -2,12 +2,12 @@ package com.Rpg.sistem_mayfair.domain;
 
 import com.Rpg.sistem_mayfair.domain.Enum.Genero;
 import com.Rpg.sistem_mayfair.domain.Enum.StatusCivil;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -41,58 +41,147 @@ public class Personagem {
 
     private String imageUrl;
 
+
+    // ============================================================
+    // FAMÍLIA
+    // ============================================================
+
     @ManyToOne
     @JoinColumn(name = "id_familia")
     @JsonIgnoreProperties("personagens")
     private Familia familia;
 
+
+    // ============================================================
+    // DATA DE CRIAÇÃO
+    // ============================================================
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+
+    // ============================================================
+    // SHAPE
+    // ============================================================
+
     private String shape;
+
+
+    // ============================================================
+    // PLAYER
+    // ============================================================
 
     @ManyToOne
     @JoinColumn(name = "player_id")
     @JsonBackReference
     private Player player;
 
+
+    // ============================================================
+    // GENERO
+    // ============================================================
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Genero genero = Genero.NAO_INFORMADO;
+
+
+    // ============================================================
+    // STATUS CIVIL
+    // ============================================================
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusCivil statusCivil = StatusCivil.SOLTEIRO;
 
-    @OneToMany(mappedBy = "personagem", cascade = CascadeType.ALL)
+
+    // ============================================================
+    // HISTÓRICO DE PRESTÍGIO
+    // ============================================================
+
+    @OneToMany(
+            mappedBy = "personagem",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @JsonIgnoreProperties("personagem")
-    private List<HistoricoPrestigio> historicoPrestigio;
+    private List<HistoricoPrestigio> historicoPrestigio =
+            new ArrayList<>();
+
+
+    // ============================================================
+    // JORNAIS
+    // ============================================================
+
+    @ManyToMany(mappedBy = "personagens")
+    private List<JornalPostagem> jornais =
+            new ArrayList<>();
+
+
+    // ============================================================
+    // PARCEIRO
+    // ============================================================
+
+    @ManyToOne
+    @JoinColumn(name = "parceiro_id")
+    @JsonIgnoreProperties({
+            "parceiro",
+            "historicoPrestigio",
+            "player"
+    })
+    private Personagem parceiro;
+
+
+    // ============================================================
+    // DIAMANTE
+    // ============================================================
+
+    private Boolean diamanteTemporada = false;
+
+
+    // ============================================================
+    // CRIAÇÃO
+    // ============================================================
 
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
+
+    // ============================================================
+    // ALTERAR PRESTÍGIO
+    // ============================================================
+
     public void alterarPrestigio(int quantidade) {
+
         int novo = this.prestigio + quantidade;
-        this.prestigio = Math.max(0, Math.min(50, novo));
+
+        this.prestigio = Math.max(
+                0,
+                Math.min(50, novo)
+        );
     }
 
-    @ManyToMany(mappedBy = "personagens")
-    private List<JornalPostagem> jornais = new ArrayList<>();
+
+    // ============================================================
+    // REMOVER PERSONAGEM DOS JORNAIS
+    // ============================================================
 
     @PreRemove
     private void removerAssociacoesJornais() {
-        for (JornalPostagem jornal : jornais) {
-            jornal.getPersonagens().remove(this);
+
+        if (jornais != null) {
+
+            for (JornalPostagem jornal : jornais) {
+
+                if (jornal.getPersonagens() != null) {
+
+                    jornal.getPersonagens().remove(this);
+                }
+            }
+
+            jornais.clear();
         }
     }
-
-
-    @ManyToOne
-    @JoinColumn(name = "parceiro_id")
-    @JsonIgnoreProperties({"parceiro", "historicoPrestigio", "player"})
-    private Personagem parceiro;
-
-    private Boolean diamanteTemporada = false;
 }
