@@ -1,10 +1,10 @@
 package com.Rpg.sistem_mayfair.domain;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,11 +30,17 @@ public class JornalPostagem {
     @Column(nullable = false)
     private Integer likes = 0;
 
+
+    // ============================================================
+    // PERSONAGENS DO JORNAL
+    // ============================================================
+
     @ManyToMany
     @JoinTable(
             name = "jornal_personagens",
             joinColumns = @JoinColumn(name = "jornal_id"),
             inverseJoinColumns = @JoinColumn(name = "personagem_id")
     )
-    private List<Personagem> personagens;
+    @Builder.Default
+    private List<Personagem> personagens = new ArrayList<>();
 }

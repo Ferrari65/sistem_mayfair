@@ -3,6 +3,7 @@ package com.Rpg.sistem_mayfair.service;
 import com.Rpg.sistem_mayfair.domain.Enum.Genero;
 import com.Rpg.sistem_mayfair.domain.Enum.StatusCivil;
 import com.Rpg.sistem_mayfair.domain.Familia;
+import com.Rpg.sistem_mayfair.domain.JornalPostagem;
 import com.Rpg.sistem_mayfair.domain.Personagem;
 import com.Rpg.sistem_mayfair.domain.Player;
 import com.Rpg.sistem_mayfair.dto.personagem.PersonagemDTO;
@@ -36,18 +37,21 @@ public class PersonagemService {
         personagem.setIdade(dto.getAge());
         personagem.setTitulo(dto.getTitle());
 
+        // PRESTÍGIO
         personagem.setPrestigio(
                 dto.getPrestige() != null
                         ? dto.getPrestige()
                         : 20
         );
 
+        // GÊNERO
         personagem.setGenero(
                 dto.getGenero() != null
                         ? dto.getGenero()
                         : Genero.NAO_INFORMADO
         );
 
+        // STATUS CIVIL
         personagem.setStatusCivil(
                 dto.getStatusCivil() != null
                         ? dto.getStatusCivil()
@@ -55,7 +59,10 @@ public class PersonagemService {
         );
 
 
+        // ========================================================
         // PARCEIRO
+        // ========================================================
+
         if (dto.getParceiroId() != null) {
 
             Personagem parceiro = personagemRepository
@@ -70,14 +77,37 @@ public class PersonagemService {
         }
 
 
-        personagem.setDescricao(dto.getDescription());
+        // ========================================================
+        // DESCRIÇÃO
+        // ========================================================
 
-        personagem.setShape(dto.getShape());
+        personagem.setDescricao(
+                dto.getDescription()
+        );
 
-        personagem.setImageUrl(dto.getImageUrl());
+
+        // ========================================================
+        // SHAPE
+        // ========================================================
+
+        personagem.setShape(
+                dto.getShape()
+        );
 
 
+        // ========================================================
+        // IMAGEM
+        // ========================================================
+
+        personagem.setImageUrl(
+                dto.getImageUrl()
+        );
+
+
+        // ========================================================
         // FAMÍLIA
+        // ========================================================
+
         if (dto.getFamilyId() != null &&
                 dto.getFamilyId() > 0) {
 
@@ -95,6 +125,7 @@ public class PersonagemService {
 
             personagem.setFamilia(null);
         }
+
 
         return personagemRepository.save(personagem);
     }
@@ -155,13 +186,32 @@ public class PersonagemService {
 
         PersonagemDTO dto = new PersonagemDTO();
 
-        dto.setName(p.getNome());
-        dto.setAge(p.getIdade());
-        dto.setTitle(p.getTitulo());
-        dto.setPrestige(p.getPrestigio());
-        dto.setDescription(p.getDescricao());
-        dto.setImageUrl(p.getImageUrl());
+        dto.setName(
+                p.getNome()
+        );
 
+        dto.setAge(
+                p.getIdade()
+        );
+
+        dto.setTitle(
+                p.getTitulo()
+        );
+
+        dto.setPrestige(
+                p.getPrestigio()
+        );
+
+        dto.setDescription(
+                p.getDescricao()
+        );
+
+        dto.setImageUrl(
+                p.getImageUrl()
+        );
+
+
+        // FAMÍLIA
         if (p.getFamilia() != null) {
 
             dto.setFamilyId(
@@ -169,32 +219,48 @@ public class PersonagemService {
             );
         }
 
-        dto.setGenero(p.getGenero());
 
-        dto.setStatusCivil(p.getStatusCivil());
+        // GÊNERO
+        dto.setGenero(
+                p.getGenero()
+        );
 
+
+        // STATUS CIVIL
+        dto.setStatusCivil(
+                p.getStatusCivil()
+        );
+
+
+        // PARCEIRO
         if (p.getParceiro() != null) {
 
             dto.setParceiroId(
-                    p.getParceiro().getId_personagens()
+                    p.getParceiro()
+                            .getId_personagens()
             );
         }
 
+
+        // SHAPE
         if (isAdmin) {
 
-            dto.setShape(p.getShape());
+            dto.setShape(
+                    p.getShape()
+            );
 
         } else {
 
             dto.setShape(null);
         }
 
+
         return dto;
     }
 
 
     // ============================================================
-    // ATUALIZAR
+    // ATUALIZAR PERSONAGEM
     // ============================================================
 
     public Personagem atualizar(
@@ -211,40 +277,94 @@ public class PersonagemService {
                 );
 
 
+        // ========================================================
+        // NOME
+        // ========================================================
+
         if (dto.getName() != null) {
-            personagem.setNome(dto.getName());
+
+            personagem.setNome(
+                    dto.getName()
+            );
         }
+
+
+        // ========================================================
+        // IDADE
+        // ========================================================
 
         if (dto.getAge() != null) {
-            personagem.setIdade(dto.getAge());
+
+            personagem.setIdade(
+                    dto.getAge()
+            );
         }
+
+
+        // ========================================================
+        // TÍTULO
+        // ========================================================
 
         if (dto.getTitle() != null) {
-            personagem.setTitulo(dto.getTitle());
+
+            personagem.setTitulo(
+                    dto.getTitle()
+            );
         }
+
+
+        // ========================================================
+        // PRESTÍGIO
+        // ========================================================
 
         if (dto.getPrestige() != null) {
-            personagem.setPrestigio(dto.getPrestige());
+
+            personagem.setPrestigio(
+                    dto.getPrestige()
+            );
         }
 
+
+        // ========================================================
+        // DESCRIÇÃO
+        // ========================================================
+
         if (dto.getDescription() != null) {
+
             personagem.setDescricao(
                     dto.getDescription()
             );
         }
 
+
+        // ========================================================
+        // SHAPE
+        // ========================================================
+
         if (dto.getShape() != null) {
-            personagem.setShape(dto.getShape());
+
+            personagem.setShape(
+                    dto.getShape()
+            );
         }
 
+
+        // ========================================================
+        // IMAGEM
+        // ========================================================
+
         if (dto.getImageUrl() != null) {
+
             personagem.setImageUrl(
                     dto.getImageUrl()
             );
         }
 
 
+        // ========================================================
         // FAMÍLIA
+        // ========================================================
+
         if (dto.getFamilyId() != null) {
 
             Familia familia = familiaRepository
@@ -255,11 +375,16 @@ public class PersonagemService {
                             )
                     );
 
-            personagem.setFamilia(familia);
+            personagem.setFamilia(
+                    familia
+            );
         }
 
 
-        // GENERO
+        // ========================================================
+        // GÊNERO
+        // ========================================================
+
         if (dto.getGenero() != null) {
 
             personagem.setGenero(
@@ -268,7 +393,10 @@ public class PersonagemService {
         }
 
 
+        // ========================================================
         // STATUS CIVIL
+        // ========================================================
+
         if (dto.getStatusCivil() != null) {
 
             personagem.setStatusCivil(
@@ -277,7 +405,10 @@ public class PersonagemService {
         }
 
 
+        // ========================================================
         // PARCEIRO
+        // ========================================================
+
         if (dto.getParceiroId() != null) {
 
             Personagem parceiro = personagemRepository
@@ -288,10 +419,15 @@ public class PersonagemService {
                             )
                     );
 
-            personagem.setParceiro(parceiro);
+            personagem.setParceiro(
+                    parceiro
+            );
         }
 
-        return personagemRepository.save(personagem);
+
+        return personagemRepository.save(
+                personagem
+        );
     }
 
 
@@ -302,9 +438,9 @@ public class PersonagemService {
     @Transactional
     public void deletar(Long id) {
 
-        // --------------------------------------------------------
+        // ========================================================
         // 1. BUSCAR PERSONAGEM
-        // --------------------------------------------------------
+        // ========================================================
 
         Personagem personagem = personagemRepository
                 .findById(id)
@@ -315,9 +451,20 @@ public class PersonagemService {
                 );
 
 
-        // --------------------------------------------------------
-        // 2. REMOVER COMO PARCEIRO DE OUTROS PERSONAGENS
-        // --------------------------------------------------------
+        // ========================================================
+        // 2. REMOVER O PERSONAGEM COMO PARCEIRO
+        // ========================================================
+        //
+        // Se:
+        //
+        // João -> parceiro = Maria
+        //
+        // e Maria for excluída, precisamos fazer:
+        //
+        // João -> parceiro = null
+        //
+        // antes de apagar Maria.
+        // ========================================================
 
         List<Personagem> relacionados =
                 personagemRepository
@@ -336,47 +483,82 @@ public class PersonagemService {
         }
 
 
-        // --------------------------------------------------------
-        // 3. DESVINCULAR FAMÍLIA
-        // --------------------------------------------------------
+        // ========================================================
+        // 3. DESVINCULAR DA FAMÍLIA
+        // ========================================================
         //
-        // NÃO apagamos a família.
-        // Apenas removemos a referência do personagem.
-        // --------------------------------------------------------
+        // A família NÃO será apagada.
+        // Apenas removemos a referência.
+        // ========================================================
 
         personagem.setFamilia(null);
 
 
-        // --------------------------------------------------------
-        // 4. DESVINCULAR PLAYER
-        // --------------------------------------------------------
+        // ========================================================
+        // 4. DESVINCULAR DO PLAYER
+        // ========================================================
         //
-        // NÃO apagamos o player.
+        // O player NÃO será apagado.
         // Apenas removemos a referência.
-        // --------------------------------------------------------
+        // ========================================================
 
         personagem.setPlayer(null);
 
 
-        // --------------------------------------------------------
-        // 5. SALVAR AS ALTERAÇÕES
-        // --------------------------------------------------------
-
-        personagemRepository.save(personagem);
-
-
-        // --------------------------------------------------------
-        // 6. EXCLUIR PERSONAGEM
-        // --------------------------------------------------------
+        // ========================================================
+        // 5. REMOVER DOS JORNAIS
+        // ========================================================
         //
-        // HistoricoPrestigio será excluído por:
+        // Não apagamos o JornalPostagem.
+        //
+        // Apenas removemos o personagem da relação
+        // ManyToMany.
+        //
+        // Isso remove o registro correspondente da:
+        //
+        // jornal_personagens
+        //
+        // ========================================================
+
+        if (personagem.getJornais() != null) {
+
+            for (JornalPostagem jornal :
+                    personagem.getJornais()) {
+
+                if (jornal.getPersonagens() != null) {
+
+                    jornal.getPersonagens()
+                            .remove(personagem);
+                }
+            }
+
+            personagem.getJornais().clear();
+        }
+
+
+        // ========================================================
+        // 6. SALVAR DESVINCULAÇÕES
+        // ========================================================
+
+        personagemRepository.save(
+                personagem
+        );
+
+
+        // ========================================================
+        // 7. EXCLUIR PERSONAGEM
+        // ========================================================
+        //
+        // HistoricoPrestigio será excluído automaticamente
+        // devido a:
         //
         // cascade = CascadeType.ALL
         // orphanRemoval = true
         //
-        // Jornais serão desvinculados pelo @PreRemove.
-        // --------------------------------------------------------
+        // ========================================================
 
-        personagemRepository.delete(personagem);
+        personagemRepository.delete(
+                personagem
+        );
     }
 }

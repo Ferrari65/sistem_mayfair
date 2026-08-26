@@ -78,7 +78,7 @@ public class Personagem {
 
 
     // ============================================================
-    // GENERO
+    // GÊNERO
     // ============================================================
 
     @Enumerated(EnumType.STRING)
@@ -165,7 +165,7 @@ public class Personagem {
 
 
     // ============================================================
-    // REMOVER PERSONAGEM DOS JORNAIS
+    // REMOVER DOS JORNAIS ANTES DE EXCLUIR
     // ============================================================
 
     @PreRemove
@@ -176,7 +176,6 @@ public class Personagem {
             for (JornalPostagem jornal : jornais) {
 
                 if (jornal.getPersonagens() != null) {
-
                     jornal.getPersonagens().remove(this);
                 }
             }

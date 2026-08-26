@@ -25,9 +25,22 @@ public class HistoricoPrestigio {
     @Column(nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+
+    // ============================================================
+    // PERSONAGEM
+    // ============================================================
+
     @ManyToOne
-    @JoinColumn(name = "id_personagem")
+    @JoinColumn(
+            name = "id_personagem",
+            nullable = false
+    )
     private Personagem personagem;
+
+
+    // ============================================================
+    // DATA DE CRIAÇÃO
+    // ============================================================
 
     @PrePersist
     public void prePersist() {
